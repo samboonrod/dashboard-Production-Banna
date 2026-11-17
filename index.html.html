@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard บริหารการผลิตไข่ไก่ - Banna Plant</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='xlsx.full.min.js';document.head.appendChild(s);"></script>
+<style>
+:root{
+  --green-950:#004e2f; --green-900:#005f3a; --green-800:#007348; --green-700:#07854f;
+  --green-100:#daf2e1; --green-050:#effaf3; --red:#f01818; --red-100:#fff0f0;
+  --orange:#ff6a00; --gray-025:#fbfcfb; --gray-050:#f6f7f6; --gray-100:#edf0ee;
+  --gray-200:#dfe4e1; --gray-400:#aab2ad; --gray-600:#66706a; --ink:#142019;
+  --shadow:0 6px 22px rgba(21,61,41,.08); --radius:18px;
+  --brand:var(--green-900); --brand-dark:var(--green-950); --brand-light:var(--green-100);
+  --blue:var(--green-900); --lightblue:var(--green-050);
+  --green:var(--green-800); --amber:var(--orange); --gray:var(--gray-600);
+  --bg:#f4f7f5; --card:#ffffff; --border:var(--gray-200); --neutral:#cfcfcf;
+  --sidebar-bg:#005c38; --sidebar-active:#0aa34d;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai","Segoe UI","Tahoma","Arial",sans-serif;}
+.app-shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+.sidebar{background:linear-gradient(180deg,#005c38 0%,#004b2e 100%);color:#fff;padding:18px 12px;display:flex;flex-direction:column;gap:10px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-logo{height:104px;display:flex;align-items:center;justify-content:center;margin-bottom:0;}
+.sidebar-logo img{width:86px;height:86px;object-fit:contain;background:#fff;border-radius:14px;padding:4px;}
+.sidebar-nav{display:flex;flex-direction:column;gap:6px;}
+.sidebar-nav button{display:flex;align-items:center;gap:12px;text-align:left;background:none;border:none;color:#fff;font-weight:700;font-size:15px;line-height:1.25;padding:13px 15px;border-radius:14px;font-family:inherit;}
+.sidebar-nav button .ic{width:24px;text-align:center;font-size:21px;opacity:.95;flex-shrink:0;}
+.sidebar-nav button.active{background:var(--sidebar-active);}
+.sidebar-nav button:hover{background:rgba(255,255,255,.08);}
+.sidebar-footer{margin-top:auto;background:rgba(255,255,255,.08);border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center;font-size:12px;gap:8px;}
+.sidebar-footer .txt b{display:block;font-size:13px;margin-bottom:4px;}
+.sidebar-footer .upd-time{display:block;color:#dff2e6;}
+.sidebar-footer .refresh-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;flex-shrink:0;}
+.main-wrap{padding:18px 22px 24px;overflow:hidden;}
+.topheader{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:16px;flex-wrap:wrap;}
+.topheader .titles h1{margin:0;font-size:31px;line-height:1.15;font-weight:800;color:var(--ink);}
+.topheader .titles h1 .brand-text{color:var(--green-900);}
+.topheader .titles .sub{margin-top:8px;font-weight:700;color:var(--ink);font-size:14px;}
+.datetime-boxes{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.infobox{background:white;border:1px solid var(--gray-200);border-radius:15px;padding:13px 17px;min-width:190px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);}
+.infobox .ic{font-size:27px;color:var(--green-900);}
+.infobox input[type=date]{border:none;padding:0;font-size:18px;font-weight:700;color:var(--ink);background:transparent;font-family:inherit;}
+.infobox .clockval{font-size:26px;color:var(--green-900);font-variant-numeric:tabular-nums;font-weight:700;display:block;}
+.infobox .clocklbl{display:block;color:var(--gray-600);margin-top:2px;font-size:12px;}
+button{cursor:pointer;font-family:inherit;}
+.btn{background:var(--green-900);color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;transition:.15s;}
+.btn:hover{background:var(--green-950);}
+.btn.secondary{background:#fff;color:var(--green-950);border:1px solid var(--border);}
+.btn.secondary:hover{background:var(--green-050);}
+.btn.danger{background:var(--red);}
+.btn.small{padding:6px 12px;font-size:12px;}
+main{display:block;}
+.page{display:none;}
+.page.active{display:block;animation:fade .2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.card{background:var(--card);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px;}
+.card-head-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.card-head-row h2{margin:0;}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,30,20,.5);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:#fff;border-radius:14px;padding:22px;max-width:380px;width:90%;box-shadow:var(--shadow);}
+.modal-title{font-weight:800;font-size:15px;margin-bottom:10px;color:var(--ink);}
+.modal-body{font-size:13px;color:var(--gray-600);margin-bottom:18px;line-height:1.7;}
+.modal-body b{color:var(--ink);}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;}
+.card h2{margin:0 0 12px;font-size:16px;color:var(--green-900);font-weight:850;display:flex;align-items:center;gap:8px;}
+.card h2 .hico{font-size:17px;}
+.card h2 .hico.red{color:var(--red);}
+.grid{display:grid;gap:14px;}
+.grid.cols4{grid-template-columns:repeat(4,1fr);}
+.grid.cols3{grid-template-columns:repeat(3,1fr);}
+.grid.cols2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:900px){.grid.cols4{grid-template-columns:repeat(2,1fr);}.grid.cols3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.grid.cols4,.grid.cols3,.grid.cols2{grid-template-columns:1fr;}}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.kpis{grid-template-columns:1fr;}}
+.kpi{min-height:132px;padding:20px 24px;display:flex;align-items:center;gap:18px;margin-bottom:0;}
+.kpi-ico{width:66px;height:66px;border-radius:50%;background:var(--green-100);display:grid;place-items:center;font-size:32px;color:var(--green-900);flex-shrink:0;}
+.kpi .label{color:var(--green-900);font-weight:800;margin-bottom:8px;font-size:14px;}
+.kpi .value{font-size:32px;font-weight:850;line-height:1;color:var(--ink);}
+.kpi .unit{font-size:14px;margin-left:4px;color:var(--gray-600);}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.pill{padding:9px 16px;border-radius:999px;font-weight:800;font-size:14px;}
+.pill.green{background:#dff4e5;color:#07733e;}
+.pill.red{background:#ffe3e3;color:#e11;}
+.pill.gray{background:#eceeed;color:#666;}
+.grid-top{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(360px,1fr);gap:16px;margin-bottom:16px;}
+@media(max-width:1100px){.grid-top{grid-template-columns:1fr;}}
+.panel-head{display:flex;align-items:center;gap:10px;padding:2px 4px 8px;font-size:19px;font-weight:850;color:var(--green-900);}
+.legend{display:flex;gap:20px;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin:0 0 8px;flex-wrap:wrap;}
+.legend i{width:14px;height:14px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:-2px;}
+.chart-wrap{height:330px;padding:8px 4px 44px;display:flex;overflow-x:auto;}
+.y-axis{width:55px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;padding:0 8px 42px 0;text-align:right;color:#4e5752;font-size:12px;}
+.chart-area{position:relative;flex:1;min-width:500px;border-left:1px solid #cfd5d1;border-bottom:1px solid #cfd5d1;background:repeating-linear-gradient(to top,transparent 0,transparent 64px,#e7ebe8 65px);}
+.bars{position:absolute;inset:0 8px 0 8px;display:flex;align-items:flex-end;gap:8px;}
+.bar-col{height:100%;flex:1;display:flex;align-items:flex-end;justify-content:center;position:relative;min-width:16px;cursor:pointer;}
+.chart-tooltip{position:fixed;z-index:999;background:var(--green-950);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;line-height:1.6;box-shadow:var(--shadow);pointer-events:none;white-space:nowrap;}
+.chart-tooltip .tt-title{font-weight:800;font-size:13px;margin-bottom:4px;color:#fff;}
+.chart-tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;}
+.chart-tooltip .tt-row b{font-weight:800;}
+.stack{width:70%;max-width:30px;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden;}
+.seg{width:100%;}
+.seg.prod{background:var(--green-900);}
+.seg.short{background:var(--red);}
+.seg.remain{background:#cfcfcf;}
+.xlab{position:absolute;bottom:-44px;left:50%;transform:translateX(-50%) rotate(-40deg);transform-origin:center;white-space:nowrap;font-size:11px;font-weight:700;}
+.top5-head{padding:2px 4px 14px;font-size:19px;font-weight:850;display:flex;align-items:center;gap:10px;color:var(--ink);}
+.badge-x{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--red);color:white;font-weight:900;flex-shrink:0;}
+table.top5tbl{width:100%;border-collapse:collapse;font-size:13px;}
+table.top5tbl th,table.top5tbl td{padding:12px 10px;border-bottom:1px solid var(--gray-100);text-align:center;}
+table.top5tbl th:nth-child(2),table.top5tbl td:nth-child(2){text-align:left;}
+.rank{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--red);color:white;font-weight:800;font-size:12px;}
+.danger{color:var(--red);font-weight:850;}
+.bottom-grid{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(280px,.75fr);gap:16px;}
+@media(max-width:1100px){.bottom-grid{grid-template-columns:1fr;}}
+.table-card{overflow:hidden;}
+.table-title{padding:0 4px 10px;font-size:18px;font-weight:850;color:var(--green-900);display:flex;gap:8px;align-items:center;}
+.prod-table{width:100%;border-collapse:collapse;font-size:12px;}
+.prod-table th{background:linear-gradient(180deg,#006a3f,#00552f);color:#fff;padding:8px 6px;border-right:1px solid rgba(255,255,255,.25);}
+.prod-table td{padding:8px 6px;text-align:center;border:1px solid #e4e8e5;font-weight:700;color:var(--ink);}
+.prod-table td:first-child{text-align:left;font-weight:800;}
+.pos{color:#087c41 !important;} .neg{color:#f01818 !important;} .pct-orange{color:var(--orange) !important;} .pct-green{color:#087c41 !important;}
+.ptrack{height:8px;background:#eceeed;border-radius:999px;overflow:hidden;margin-top:7px;}
+.ptrack span{display:block;height:100%;border-radius:999px;}
+.summary-card{display:flex;align-items:center;justify-content:center;gap:20px;background:linear-gradient(135deg,#fff5f5,#ffe8e8);padding:24px;text-align:left;}
+.summary-x{width:70px;height:70px;background:var(--red);color:#fff;border-radius:50%;display:grid;place-items:center;font-size:42px;flex-shrink:0;}
+.summary-card .small{font-size:16px;font-weight:800;}
+.summary-card .big{font-size:48px;line-height:1;color:var(--red);font-weight:900;margin-top:6px;}
+.summary-card .unit{font-size:16px;color:#222;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.badge.green{background:var(--brand-light);color:var(--green-800);}
+.badge.red{background:#fdeaea;color:var(--red);}
+.badge.amber{background:#fdf3de;color:var(--orange);}
+.badge.gray{background:#eef1ef;color:var(--gray-600);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;color:var(--ink);}
+th{background:#f6f8f6;color:#4b5563;font-weight:700;position:sticky;top:0;}
+tr:hover td{background:#fafbfa;}
+.tblwrap{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:8px;}
+input[type=number],input[type=text],input[type=time],select{padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;width:100%;background:#fff;color:var(--ink);}
+.progress{background:#eef1ef;border-radius:20px;height:10px;overflow:hidden;position:relative;}
+.progress > div{height:100%;border-radius:20px;transition:.3s;}
+.chiplist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#fdeaea;color:var(--red);cursor:pointer;}
+.chip.ok{background:var(--brand-light);color:var(--green-800);}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.toolbar .spacer{flex:1;}
+.pill-select{display:flex;flex-wrap:wrap;gap:6px;}
+.pill-select button{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:600;color:var(--gray-600);}
+.pill-select button.active{background:var(--green-900);color:#fff;border-color:var(--green-900);}
+.accordion .acc-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;}
+.accordion .acc-head{padding:10px 14px;background:#f6f8f6;color:var(--ink);display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:700;font-size:13px;}
+.accordion .acc-body{padding:0 14px 14px;display:none;}
+.accordion .acc-item.open .acc-body{display:block;}
+.accordion .acc-item.open .acc-head{background:var(--green-050);}
+.cstatus-legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--gray-600);margin:2px 0 14px;align-items:center;}
+.cstatus-legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+.accordion .acc-head.cstatus-row{display:grid;grid-template-columns:230px 1fr 150px 140px 60px 168px;align-items:center;gap:14px;}
+.cstatus-items{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
+.cstatus-info{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.cstatus-name{font-weight:800;font-size:13px;color:var(--ink);}
+.cstatus-track{background:#eef1ef;border-radius:20px;height:14px;overflow:hidden;}
+.cstatus-fill{height:100%;border-radius:20px;transition:.3s;}
+.cstatus-qty{font-size:13px;font-weight:700;color:var(--ink);text-align:right;white-space:nowrap;}
+.cstatus-pct{font-weight:800;font-size:14px;text-align:right;white-space:nowrap;}
+.cstatus-confirm-btn{font-size:11px;padding:7px 10px;white-space:nowrap;justify-self:end;}
+.accordion .acc-item.cstatus-confirmed .acc-head{background:var(--green-050);}
+.accordion .acc-item.cstatus-confirmed{border-color:var(--green-100);}
+.smallnote{font-size:12px;color:var(--gray-600);margin-top:6px;}
+footer{text-align:center;font-size:12px;color:var(--gray-600);padding:20px;}
+.overdue{color:var(--red);font-weight:700;}
+.formgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:end;}
+@media(max-width:900px){.formgrid{grid-template-columns:repeat(2,1fr);}}
+.formgrid label{font-size:11px;color:var(--gray-600);font-weight:700;display:block;margin-bottom:3px;}
+.tag-internal{background:#f1e6e6;color:#a15a5a;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:6px;}
+.barchart{display:flex;flex-direction:column;gap:10px;}
+.barchart .brow{display:grid;grid-template-columns:26px 150px 1fr 56px 92px;align-items:center;gap:10px;}
+.barchart .brow .icon{font-size:18px;text-align:center;}
+.barchart .brow .lbl{font-size:13px;font-weight:600;color:#334;}
+.barchart .btrack{background:#eef1ef;border-radius:20px;height:16px;overflow:hidden;}
+.barchart .bfill{height:100%;border-radius:20px;transition:.3s;}
+.barchart .bpct{font-size:13px;font-weight:800;text-align:right;}
+.settingsTable input{max-width:140px;}
+/* ===== Sync status pill ===== */
+#syncPill{position:fixed;right:14px;bottom:14px;z-index:9999;font:600 12px/1.3 inherit;
+  padding:7px 12px;border-radius:999px;background:#e8e8e8;color:#333;box-shadow:0 2px 8px rgba(0,0,0,.18);cursor:pointer;user-select:none}
+#syncPill.ok{background:#005f3a;color:#fff}
+#syncPill.busy{background:#e8a400;color:#fff}
+#syncPill.err{background:#f01818;color:#fff}
+#syncPill.local{background:#6b6b6b;color:#fff}
+
+/* ===== Display / Kiosk mode ===== */
+body.display-mode #tabs button[data-page="p5"],
+body.display-mode #tabs button[data-page="p6"],
+body.display-mode #tabs button[data-page="p7"],
+body.display-mode #btnReset,
+body.display-mode .btn.primary,
+body.display-mode .btn.secondary,
+body.display-mode .sysCard{display:none !important}
+body.display-mode input,body.display-mode select,body.display-mode textarea{pointer-events:none;opacity:.75}
+body.display-mode #datePicker{pointer-events:auto;opacity:1}
+body.display-mode{font-size:112%}
+body.display-mode .topheader h1{font-size:1.5em}
+#displayBadge{display:none}
+body.display-mode #displayBadge{display:inline-flex;align-items:center;gap:6px;
+  background:#005f3a;color:#fff;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-left:10px}
+body.display-mode #rotateInfo{display:block;font-size:11px;color:#777;margin-top:2px}
+#rotateInfo{display:none}
+
+/* ===== System settings card (injected) ===== */
+.sysCard{margin-top:18px}
+.sysCard .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.sysCard label{font-size:12px;font-weight:700;min-width:150px}
+.sysCard input[type=text],.sysCard input[type=number]{padding:6px 8px;border:1px solid #ccc;border-radius:6px;font:inherit}
+.sysCard input[type=text]{min-width:320px}
+.sysCard .hint{font-size:11px;color:#777;margin-left:150px}
+/* ===== Page 8: ข้อมูลย้อนหลัง ===== */
+.hist-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.hist-toolbar input[type=date]{padding:7px 10px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;}
+.hist-toolbar .lbl{font-size:13px;font-weight:700;color:var(--gray-600);}
+.hist-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:16px;}
+@media(max-width:1100px){.hist-kpis{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.hist-kpis{grid-template-columns:1fr;}}
+.hist-kpis .card{margin-bottom:0;}
+.hist-kpis .label{font-size:13px;color:var(--gray-600);font-weight:700;}
+.hist-kpis .value{font-size:24px;font-weight:850;color:var(--green-900);margin-top:6px;}
+.hist-kpis .sub{font-size:12px;color:var(--gray-600);margin-top:4px;}
+.hist-chart-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;padding:8px;background:#fff;}
+.hist-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--gray-600);margin-bottom:8px;}
+.hist-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;}
+.hist-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:1100px){.hist-grid2{grid-template-columns:1fr;}}
+table.histtbl td,table.histtbl th{text-align:right;white-space:nowrap;}
+table.histtbl td:first-child,table.histtbl th:first-child{text-align:left;}
+table.histtbl tr.clickable{cursor:pointer;}
+table.histtbl tr.clickable:hover td{background:var(--green-050);}
+.hbadge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;}
+.hbadge.g{background:#dff4e5;color:#07733e;}
+.hbadge.o{background:#fff0e3;color:#c24f00;}
+.hbadge.r{background:#ffe3e3;color:#d00;}
+#histStatus{font-size:12px;color:var(--gray-600);}
+.hist-storage{font-size:12px;color:var(--gray-600);display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.hist-storage input{width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;}
+.del-text{background:none;border:none;color:var(--red);font-weight:800;font-size:14px;padding:4px 10px;border-radius:8px;cursor:pointer;}
+.del-text:hover{background:#ffe3e3;text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="data:image/png;base64,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" alt="CPF">
+    </div>
+    <nav class="sidebar-nav" id="tabs">
+      <button data-page="p1" class="active"><span class="ic">&#9635;</span> <span>1. สรุปภาพรวม</span></button>
+      <button data-page="p2"><span class="ic">&#9636;</span> <span>2. ออเดอร์ &amp;<br>สถานะลูกค้า</span></button>
+      <button data-page="p3"><span class="ic">&#9881;</span> <span>3. บันทึกผลได้</span></button>
+      <button data-page="p4"><span class="ic">&#9635;</span> <span>4. เทียบผลผลิต<br>ต่อลูกค้า</span></button>
+      <button data-page="p5"><span class="ic">&#9687;</span> <span>5. ตั้งค่าเวลาส่งมอบ<br>&amp; Standard</span></button>
+      <button data-page="p6"><span class="ic">&#9636;</span> <span>6. ข้อมูลผลิต<br>จุดงาน</span></button>
+      <button data-page="p7"><span class="ic">&#128203;</span> <span>7. กรอกออเดอร์<br>ลูกค้า</span></button>
+      <button data-page="p8"><span class="ic">&#128197;</span> <span>8. ข้อมูลย้อนหลัง</span></button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="txt"><b>อัปเดตข้อมูลล่าสุด</b><span class="upd-time" id="lastUpdatedLabel">-</span></div>
+      <button class="refresh-btn" id="btnRefreshAll" title="รีเฟรชข้อมูล">&#8635;</button>
+    </div>
+  </aside>
+  <div class="main-wrap">
+    <div class="topheader">
+      <div class="titles">
+        <h1>Dashboard บริหารการผลิตไข่ไก่รายวัน &mdash; <span class="brand-text">Banna Plant</span><span id="displayBadge">&#128065; โหมดแสดงผล (อ่านเท่านั้น)</span></h1>
+        <div class="sub" id="dateLabel">-</div>
+        <div id="rotateInfo">สลับหน้าอัตโนมัติ &middot; ดึงข้อมูลใหม่อัตโนมัติ</div>
+      </div>
+      <div class="datetime-boxes">
+        <div class="infobox">
+          <span class="ic">&#9635;</span>
+          <input type="date" id="datePicker">
+        </div>
+        <div class="infobox">
+          <span class="ic">&#9687;</span>
+          <div>
+            <div class="clockval" id="liveClock">--:--:--</div>
+            <div class="clocklbl">ชั่วโมง : นาที : วินาที</div>
+          </div>
+        </div>
+        <button class="btn secondary small" id="btnReset">ล้างข้อมูลวันนี้</button>
+      </div>
+    </div>
+<main>
+
+<!-- PAGE 1 -->
+<div class="page active" id="p1">
+  <section class="kpis" id="statCards"></section>
+
+  <section class="grid-top">
+    <div class="card">
+      <div class="panel-head">&#9635; ปริมาณผลิต/ออเดอร์ รายลูกค้า</div>
+      <div class="legend"><span><i style="background:#005f3a"></i>ผลิตแล้ว</span><span><i style="background:#f01818"></i>ยอดขาด (ฟอง)</span><span><i style="background:#cfcfcf"></i>ออเดอร์คงเหลือ</span></div>
+      <div class="chart-wrap">
+        <div class="y-axis" id="chartYAxis"></div>
+        <div class="chart-area"><div class="bars" id="bars"></div></div>
+        <div class="chart-tooltip" id="chartTooltip" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="card top5">
+      <div class="top5-head"><span class="badge-x">&times;</span> Top 5 ยอดขาด (ฟอง)</div>
+      <table class="top5tbl">
+        <thead><tr><th>อันดับ</th><th>ลูกค้า</th><th>ยอดขาด (ฟอง)</th><th>% สำเร็จ</th><th>เวลาส่ง</th></tr></thead>
+        <tbody id="top5Body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="bottom-grid">
+    <div class="card table-card">
+      <div class="table-title">&#9881; ประสิทธิภาพการผลิตแต่ละจุดงาน</div>
+      <div class="tblwrap"><table class="prod-table" id="stationEffTable"></table></div>
+      <div class="smallnote">เป้าหมาย = Standard/ชม. &times; ชั่วโมงที่ทำงานตั้งแต่เริ่มกะ — ปรับ Standard และเวลาเริ่มกะได้ที่หน้า 5</div>
+    </div>
+    <div class="card summary-card" id="totalShortfallCard"></div>
+  </section>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="p2">
+  <div class="card">
+    <h2>รายละเอียดออเดอร์ &amp; สถานะจัดส่งต่อลูกค้า (22 ราย)</h2>
+    <div class="cstatus-legend">
+      <span><i class="dot" style="background:var(--green-800)"></i> เขียว = ผลิตครบตามเป้าหมาย</span>
+      <span><i class="dot" style="background:var(--orange)"></i> เหลือง/ส้ม = ผลิตใกล้เคียงเป้าหมาย แต่ต่ำกว่า 100%</span>
+      <span><i class="dot" style="background:var(--red)"></i> แดง = ผลิตต่ำกว่าเป้าหมาย ต่ำกว่า 80%</span>
+      <span><i class="dot" style="background:var(--gray-400)"></i> เทา = ไม่มีออเดอร์</span>
+    </div>
+    <div class="accordion" id="orderAccordion"></div>
+  </div>
+  <div class="card">
+    <h2>&#128202; % ผลิตเทียบยอดออเดอร์ทั้งหมด (รายลูกค้า)</h2>
+    <div class="barchart" id="pctBarChart"></div>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="p3">
+  <div class="card">
+    <div class="card-head-row">
+      <h2>&#127959;&#65039; นำเข้า / บันทึก ยอดผลิตจริงของจุดงาน</h2>
+      <button class="btn small secondary" id="btnExportProdXlsx">&#128190; Export data</button>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="btnImportProdReplace">&#11015;&#65039; นำเข้า Excel (แทนที่ยอดวันนี้)</button>
+      <button class="btn secondary" id="btnImportProdAppend">&#11015;&#65039; นำเข้า Excel (เพิ่มเติม)</button>
+      <input type="file" id="fileProd" accept=".xlsx,.xls,.csv" style="display:none">
+      <button class="btn secondary" id="btnDownloadTemplate">&#128190; ดาวน์โหลดเทมเพลตนำเข้า</button>
+      <span class="smallnote" id="prodImportInfo">ยังไม่มีการนำเข้าไฟล์ยอดผลิตวันนี้</span>
+    </div>
+    <div class="formgrid">
+      <div><label>เวลา (เวลาปัจจุบัน)</label><input type="text" id="mTime" readonly style="background:var(--gray-050);cursor:not-allowed;font-weight:800;"></div>
+      <div><label>จุดงาน</label><select id="mStation"></select></div>
+      <div><label>สินค้า</label><select id="mProduct"></select></div>
+      <div><label>ลูกค้า</label><select id="mCustomer"></select></div>
+      <div><label>จำนวน (ฟอง)</label><input type="number" id="mQty" min="0"></div>
+    </div>
+    <div style="margin-top:8px;"><button class="btn small" id="btnAddManual">&#10133; เพิ่มรายการยอดผลิต</button></div>
+  </div>
+
+  <div class="card">
+    <h2>รายการยอดผลิตทั้งหมดวันนี้ (แก้ไข/ลบได้)</h2>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>เวลา</th><th>จุดงาน</th><th>รหัสสินค้า</th><th>สินค้า</th><th>ลูกค้า</th><th>จำนวน(ฟอง)</th><th></th></tr></thead>
+        <tbody id="prodLogBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="p4">
+  <div class="card">
+    <h2>&#128200; สถานะปริมาณผลิตเทียบออเดอร์ — เลือกดูรายลูกค้า</h2>
+    <div class="pill-select" id="customerPills"></div>
+  </div>
+  <div class="grid cols3" id="customerCards"></div>
+  <div class="card" id="customerDetailCard" style="display:none;">
+    <h2 id="customerDetailTitle"></h2>
+    <div class="tblwrap"><table>
+      <thead><tr><th>สินค้า</th><th>ออเดอร์(ฟอง)</th><th>ผลิตได้(ฟอง)</th><th>คงเหลือ(ฟอง)</th><th>%</th><th>สถานะ</th></tr></thead>
+      <tbody id="customerDetailBody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="p5">
+  <div class="card">
+    <h2>&#9200; เวลาส่งมอบลูกค้าแต่ละช่องทาง (22 ราย)</h2>
+    <div class="smallnote">แก้ไขเวลาส่งมอบของแต่ละลูกค้า แล้วกดบันทึกด้านล่าง — ใช้คำนวณสถานะ &quot;เลยเวลาส่ง&quot; ในหน้า 2</div>
+    <div class="tblwrap settingsTable" style="max-height:420px;margin-top:10px;">
+      <table><thead><tr><th>ลูกค้า</th><th>เวลาส่งมอบ</th></tr></thead>
+      <tbody id="deliveryTimeInputs"></tbody></table>
+    </div>
+  </div>
+  <div class="card">
+    <h2>&#9881;&#65039; Standard การผลิตต่อจุดงาน (ฟอง/ชั่วโมง)</h2>
+    <div class="smallnote">กรอกกำลังผลิตมาตรฐานของแต่ละจุดงาน — ใช้คำนวณ % ประสิทธิภาพในหน้า 1</div>
+    <div class="tblwrap settingsTable" style="max-height:320px;margin-top:10px;">
+      <table><thead><tr><th>จุดงาน</th><th>Standard (ฟอง/ชม.)</th></tr></thead>
+      <tbody id="standardInputsP5"></tbody></table>
+    </div>
+    <div style="margin-top:14px;max-width:220px;">
+      <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เวลาเริ่มกะ (สำหรับคำนวณประสิทธิภาพหน้า 1)</label>
+      <input type="time" id="shiftStartInputP5">
+    </div>
+  </div>
+  <div class="card">
+    <button class="btn" id="btnSaveSettingsP5">&#128190; บันทึกการตั้งค่า</button>
+    <span class="smallnote" id="settingsSavedInfo"></span>
+  </div>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page" id="p6">
+  <div class="card">
+    <h2>&#127959;&#65039; ข้อมูลผลิตจุดงาน — รายละเอียดยอดผลิตแยกตามจุดงาน (9 จุด)</h2>
+    <div class="accordion" id="stationAccordion"></div>
+  </div>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page" id="p7">
+  <div class="card">
+    <div class="card-head-row">
+      <h2>&#128203; นำเข้า / แก้ไข ออเดอร์ลูกค้าประจำวัน</h2>
+      <button class="btn small secondary" id="btnExportOrderXlsx">&#128190; Export data</button>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="btnImportOrder">&#11015;&#65039; นำเข้าไฟล์ Excel ออเดอร์วันนี้</button>
+      <input type="file" id="fileOrder" accept=".xlsx,.xls,.csv" style="display:none">
+      <span class="smallnote" id="orderImportInfo">ยังไม่ได้นำเข้าไฟล์วันนี้ — ใช้รายการสินค้าตามที่ลูกค้าสั่งประจำ (แก้ไขจำนวนเองได้ในตารางด้านล่าง)</span>
+      <div class="spacer"></div>
+      <label style="font-size:12px;"><input type="checkbox" id="onlyIncomplete"> แสดงเฉพาะที่ยังไม่ครบ</label>
+    </div>
+  </div>
+  <div class="card">
+    <h2>รายละเอียดออเดอร์ &amp; แก้ไขจำนวนสั่งซื้อ รายลูกค้า (22 ราย)</h2>
+    <div class="smallnote">แก้ไขจำนวนออเดอร์ของแต่ละสินค้า/ลูกค้าที่นี่ — ข้อมูลจะเชื่อมกับหน้า 2 (สถานะลูกค้า), หน้า 1, หน้า 4 และหน้าอื่นๆ ที่เกี่ยวข้องโดยอัตโนมัติ</div>
+    <div class="accordion" id="orderEditAccordion" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="orderEditConfirmModal" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-title">ยืนยันการแก้ไขจำนวนออเดอร์</div>
+    <div class="modal-body" id="orderEditConfirmText"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="btnOrderEditCancel">ไม่บันทึก</button>
+      <button class="btn" id="btnOrderEditSave">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 8 : ข้อมูลย้อนหลัง -->
+<div class="page" id="p8">
+  <div class="card">
+    <div class="card-head-row">
+      <h2>&#128197; ข้อมูลย้อนหลัง — สรุปผลผลิตรายวัน</h2>
+      <span id="histStatus"></span>
+    </div>
+    <div class="hist-toolbar" style="margin-top:10px;">
+      <span class="lbl">ตั้งแต่</span><input type="date" id="histFrom">
+      <span class="lbl">ถึง</span><input type="date" id="histTo">
+      <button class="btn small" id="histApply">แสดงผล</button>
+      <span class="pill-select" id="histQuick">
+        <button data-q="7">7 วัน</button>
+        <button data-q="30" class="active">30 วัน</button>
+        <button data-q="month">เดือนนี้</button>
+        <button data-q="prevmonth">เดือนก่อน</button>
+        <button data-q="90">90 วัน</button>
+        <button data-q="all">ทั้งหมด</button>
+      </span>
+      <div class="spacer" style="flex:1"></div>
+      <button class="btn small secondary" id="histPullRemote">&#8635; ดึงย้อนหลังจากส่วนกลาง</button>
+      <button class="btn small secondary" id="histExportXlsx">&#128190; Export Excel ช่วงนี้</button>
+      <button class="btn small secondary" id="histBackupJson">&#128230; สำรองข้อมูลย้อนหลัง (.json)</button>
+    </div>
+  </div>
+
+  <section class="hist-kpis" id="histKpis"></section>
+
+  <div class="card">
+    <h2>&#128200; แนวโน้มยอดออเดอร์ / ยอดผลิต / % สำเร็จ รายวัน</h2>
+    <div class="hist-legend">
+      <span><i style="background:#cfd8d3"></i>ยอดออเดอร์</span>
+      <span><i style="background:#087c41"></i>ยอดผลิต</span>
+      <span><i style="background:#ff6a00;height:3px;vertical-align:3px"></i>% สำเร็จ (แกนขวา)</span>
+    </div>
+    <div class="hist-chart-wrap" id="histChart"></div>
+  </div>
+
+  <div class="card">
+    <h2>&#128203; ตารางสรุปรายวัน <span class="smallnote" style="font-weight:400;margin:0">(คลิกแถวเพื่อเปิดดูรายละเอียดวันนั้น)</span></h2>
+    <div class="tblwrap"><table class="histtbl" id="histDailyTbl"></table></div>
+  </div>
+
+  <div class="hist-grid2">
+    <div class="card">
+      <h2>&#128101; สรุปรายลูกค้า (ช่วงที่เลือก)</h2>
+      <div class="tblwrap"><table class="histtbl" id="histCustTbl"></table></div>
+    </div>
+    <div class="card">
+      <h2>&#9881; สรุปรายจุดงาน (ช่วงที่เลือก)</h2>
+      <div class="tblwrap"><table class="histtbl" id="histStationTbl"></table></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>&#128451; พื้นที่จัดเก็บ</h2>
+    <div class="hist-storage" id="histStorage"></div>
+    <div class="smallnote">ข้อมูลทุกวันถูกเก็บถาวรในฐานข้อมูลของเบราว์เซอร์ (IndexedDB) โดยอัตโนมัติทุกครั้งที่บันทึก ·
+      ข้อมูลที่เก่ากว่าจำนวนวันที่กำหนดจะถูกย้ายออกจาก localStorage เพื่อไม่ให้พื้นที่เต็ม แต่ยังเปิดดูย้อนหลังได้ตามปกติ ·
+      แนะนำให้กด "สำรองข้อมูลย้อนหลัง" เก็บไว้ใน OneDrive เป็นประจำ</div>
+  </div>
+</div>
+
+</main>
+    <footer>Dashboard บริหารการผลิตไข่ไก่รายวัน · Banna Plant · ข้อมูลรายวันเก็บในเบราว์เซอร์ (localStorage) + คลังข้อมูลย้อนหลัง (IndexedDB)</footer>
+  </div>
+</div>
+
+
+<script>
+const MASTER = {"customers": [{"name": "เซเว่น", "type": "external", "deliveryTime": "18:00"}, {"name": "ซีพีแรม เช้า", "type": "external", "deliveryTime": "18:00"}, {"name": "ซีพีแรม เย็น", "type": "external", "deliveryTime": "18:00"}, {"name": "โรงแปรรูปหนองจอก", "type": "external", "deliveryTime": "18:00"}, {"name": "อสร.หนองจอก", "type": "external", "deliveryTime": "18:00"}, {"name": "โลตัส DC G1", "type": "external", "deliveryTime": "18:00"}, {"name": "โลตัส DC G2", "type": "external", "deliveryTime": "18:00"}, {"name": "อิออน", "type": "external", "deliveryTime": "18:00"}, {"name": "แมคโคร", "type": "external", "deliveryTime": "18:00"}, {"name": "Food Service", "type": "external", "deliveryTime": "18:00"}, {"name": "CPFM", "type": "external", "deliveryTime": "18:00"}, {"name": "MT", "type": "external", "deliveryTime": "18:00"}, {"name": "คิงส์วิช", "type": "external", "deliveryTime": "18:00"}, {"name": "DC วิลล่า", "type": "external", "deliveryTime": "18:00"}, {"name": "สหลอสัน", "type": "external", "deliveryTime": "18:00"}, {"name": "TOP Super", "type": "external", "deliveryTime": "18:00"}, {"name": "เชียงใหม่", "type": "internal", "deliveryTime": "18:00"}, {"name": "โคกตูม", "type": "internal", "deliveryTime": "18:00"}, {"name": "นครปฐม", "type": "internal", "deliveryTime": "18:00"}, {"name": "หนองปรือ", "type": "internal", "deliveryTime": "18:00"}, {"name": "จันทบุรี", "type": "internal", "deliveryTime": "18:00"}, {"name": "KD1", "type": "internal", "deliveryTime": "18:00"}], "products": [{"id": 1, "name": "ไข่ไก่เบอร์ 2 ถาดพลาสติก ซีพีแรม", "code": 2220352109, "customers": ["ซีพีแรม เช้า", "ซีพีแรม เย็น"]}, {"id": 2, "name": "ไข่ไก่เบอร์ 4 ถาดพลาสติก ซีพีแรม", "code": 2220352110, "customers": ["ซีพีแรม เช้า", "ซีพีแรม เย็น"]}, {"id": 3, "name": "ไข่ไก่ฝาครอบ #0 CP 30ฟอง", "code": 2220354093, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 4, "name": "ไข่ไก่ฝาครอบ #1 CP 30 ฟอง", "code": 2220354095, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 5, "name": "ไข่ไก่ฝาครอบ # 2 CP 30 ฟอง", "code": 2220354097, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 6, "name": "ไข่ไก่ฝาครอบ # 3 CP 30 ฟอง", "code": 2220354099, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 7, "name": "ไข่ไก่ฝาครอบ # 4 CP 30 ฟอง", "code": 2220354101, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 8, "name": "ไข่ไก่กล่อง CP 10ฟอง #0", "code": 2200354092, "customers": ["เซเว่น"]}, {"id": 9, "name": "ไข่ไก่กล่อง CP 10 ฟอง #1", "code": 2200354094, "customers": ["เซเว่น"]}, {"id": 10, "name": "ไข่ไก่กล่อง CP 10 ฟอง # 2", "code": 2220354096, "customers": ["โลตัส DC G1", "โลตัส DC G2", "แมคโคร", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 11, "name": "ไข่ไก่กล่อง CP 10 ฟอง # 3", "code": 2220354098, "customers": ["โลตัส DC G1", "โลตัส DC G2", "แมคโคร", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 12, "name": "ไข่ไก่กล่อง CP 10 ฟอง # 4", "code": 2220354100, "customers": ["โลตัส DC G1", "โลตัส DC G2", "แมคโคร", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 13, "name": "ไข่ไก่กล่อง CP 4 ฟอง # 1", "code": 2220354105, "customers": ["โลตัส DC G1", "โลตัส DC G2", "แมคโคร", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 14, "name": "ไข่ไก่สดดีเอชเอ CP Se (TAP)แพ็ค4 50-60ก", "code": 2200354084, "customers": ["เซเว่น"]}, {"id": 15, "name": "ไข่ไก่สดวิตามินอี CP Se(TAP)แพ็ค4 55-65ก", "code": 2200354085, "customers": ["เซเว่น"]}, {"id": 16, "name": "CP Selection DHA Egg แพ็ค10 50-60กรัม", "code": 2220354050, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 17, "name": "CP Selection DHA Egg แพ็ค4 50-60กรัม", "code": 2220354049, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 18, "name": "CP Selection VitaminE Egg แพ็ค10 55-65g", "code": 2220354052, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 19, "name": "CP Selection VitaminE Egg แพ็ค4 55-65g", "code": 2220354051, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 20, "name": "ไข่ไก่กล่อง Ufarm 4 ฟอง 60-70 กรัม", "code": 2220354055, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 21, "name": "ไข่ไก่กล่อง Ufarm 10 ฟอง 60-70 กรัม", "code": 2220354053, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "เชียงใหม่", "หนองปรือ", "จันทบุรี", "KD1"]}, {"id": 22, "name": "Ufarm Cagefree แพ็ค 4 60-70 กรัม(TAP)", "code": 2200354146, "customers": ["เซเว่น"]}, {"id": 23, "name": "ไข่ไก่สดโอชา ตรายูฟาร์ม (TAP) แพ็ค 4 ฟอง", "code": 2200354109, "customers": ["เซเว่น"]}, {"id": 24, "name": "ไข่ไก่สดเบญจาโอเมก้า3 ตรายูฟาร์ม แพค 4", "code": 2220354132, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 25, "name": "ไข่ไก่สดโอชา_ ตรายูฟาร์มแพค10ฟอง", "code": 2220354091, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ", "จันทบุรี"]}, {"id": 26, "name": "Nong Wa Free Range Egg pack10 55-65 g", "code": 2220354067, "customers": ["โลตัส DC G1", "โลตัส DC G2", "แมคโคร", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "โคกตูม", "นครปฐม", "หนองปรือ", "จันทบุรี"]}, {"id": 27, "name": "ไข่ไก่สดเบญจา โอเมก้า3 ตรายูฟาร์ม แพค4 (TAP)", "code": 2200354149, "customers": ["เซเว่น"]}, {"id": 28, "name": "ไข่ไก่สดเบญจา โอเมก้า3 ตรายูฟาร์ม แพค10", "code": 2220354133, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "หนองปรือ"]}, {"id": 29, "name": "ไข่ไก่สดซีพีซีเล็กชั่นแพค15ฟองเบอร์ 2", "code": 2200354140, "customers": ["เซเว่น"]}, {"id": 30, "name": "ไข่ไก่แช่เย็น10ฟอง 60-70ก ซีพีซีเล็กชั่น", "code": 2220354086, "customers": ["โลตัส DC G1", "โลตัส DC G2", "Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 31, "name": "ไข่ไก่จากแม่ไก่สาว ซีพีซีเล็กชั่น(แพค10)", "code": 2220354158, "customers": ["เซเว่น", "โลตัส DC G1", "โลตัส DC G2"]}, {"id": 32, "name": "ไข่เป็ดสดตราซีพีแพก4ฟอง60-70 กรัม", "code": 2200354001, "customers": ["เซเว่น"]}, {"id": 33, "name": "ไข่เป็ดสดแพ็ค 10 ฟอง น้ำหนัก 60-70 g.", "code": 2220354131, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "โคกตูม", "นครปฐม", "หนองปรือ"]}, {"id": 34, "name": "ARO ไข่เป็ดคละ (ใหญ่ L) มีฝาครอบพลาสติก 30 ฟอง", "code": 2220352219, "customers": ["แมคโคร", "โคกตูม", "นครปฐม", "หนองปรือ", "จันทบุรี"]}, {"id": 35, "name": "ARO ไข่เป็ดคละ (กลาง M) มีฝาครอบพลาสติก 30 ฟอง", "code": 2220352218, "customers": ["แมคโคร", "โคกตูม", "นครปฐม", "หนองปรือ", "จันทบุรี"]}, {"id": 36, "name": "ARO ไข่เป็ดคละ (เล็ก S) มีฝาครอบพลาสติก 30 ฟอง", "code": 2220352217, "customers": ["แมคโคร", "โคกตูม", "นครปฐม", "หนองปรือ", "จันทบุรี"]}, {"id": 37, "name": "U Farm Cage free แพ็ค 30 ฟอง มีฝาครอบ", "code": 2220352220, "customers": ["เชียงใหม่"]}, {"id": 38, "name": "ไข่ไก่ #2 Cage Free ถาดกระดาษ", "code": 2220352028, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "เชียงใหม่", "จันทบุรี"]}, {"id": 39, "name": "ไข่ไก่ #3 Cage Free ถาดกระดาษ", "code": 2220352029, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super", "เชียงใหม่", "จันทบุรี"]}, {"id": 40, "name": "ไข่ไก่ #4 Cage Free ถาดกระดาษ", "code": 2220352030, "customers": ["Food Service", "CPFM", "MT", "คิงส์วิช", "DC วิลล่า", "สหลอสัน", "TOP Super"]}, {"id": 41, "name": "ไข่ไก่#2 Ufarm cagefree ถาดกระดาษไม่มีฝา", "code": 2220352205, "customers": ["เชียงใหม่", "จันทบุรี"]}, {"id": 42, "name": "ไข่ไก่#3 Ufarm cagefree ถาดกระดาษไม่มีฝา", "code": 2220352206, "customers": ["เชียงใหม่", "จันทบุรี"]}, {"id": 43, "name": "ไข่ไก่ U Farm cagefree #2 มัด3 ถาดกระดาษ", "code": 2220352213, "customers": ["เชียงใหม่", "KD1"]}, {"id": 44, "name": "ไข่ไก่ U Farm cagefree #3 มัด3 ถาดกระดาษ", "code": 2220352214, "customers": ["เชียงใหม่", "KD1"]}, {"id": 45, "name": "ไข่ไก่ ตราเอโร่ เบอร์0 มีฝา 30 ฟอง", "code": 2220352112, "customers": ["แมคโคร"]}, {"id": 46, "name": "ไข่ไก่ ตราเอโร่ เบอร์ 1 มีฝา 30 ฟอง", "code": 2220352113, "customers": ["แมคโคร"]}, {"id": 47, "name": "ไข่ไก่กล่องARO 30ฟอง #2", "code": 23016275, "customers": ["แมคโคร"]}, {"id": 48, "name": "ไข่ไก่กล่องARO 30ฟอง #3", "code": 2220352086, "customers": ["แมคโคร"]}, {"id": 49, "name": "ไข่ไก่คละเบอร์3-4มีฝาตราเอโร่30ฟอง", "code": 2220352111, "customers": ["แมคโคร"]}, {"id": 50, "name": "ARO ไข่ไก่คละเบอร์3-4 ไม่มีฝา 30ฟองx5", "code": 2220354151, "customers": ["แมคโคร"]}, {"id": 51, "name": "ARO ไข่ไก่เบอร์2 ไม่มีฝา 30 ฟอง x5", "code": 2220352124, "customers": ["แมคโคร"]}, {"id": 52, "name": "ARO ไข่ไก่เบอร์3 ไม่มีฝา 30 ฟอง x5", "code": 2220352125, "customers": ["แมคโคร"]}, {"id": 53, "name": "ไข่ไก่แพค 10 ฟอง # 2 โลตัส", "code": 2220354160, "customers": ["โลตัส DC G1", "โลตัส DC G2"]}, {"id": 54, "name": "ไข่ไก่แพค 10 ฟอง # 3 โลตัส", "code": 2220354161, "customers": ["โลตัส DC G1", "โลตัส DC G2"]}, {"id": 55, "name": "ไข่ไก่ARO #1 (Pack 15)", "code": 23017249, "customers": ["แมคโคร"]}, {"id": 56, "name": "ไข่ไก่กล่องARO 15ฟอง #2", "code": 23016239, "customers": ["แมคโคร"]}, {"id": 57, "name": "ไข่ไก่ ARO # 0 10 ฟอง", "code": 23067722, "customers": ["แมคโคร"]}, {"id": 58, "name": "ไข่ไก่ ARO # 1 10 ฟอง", "code": 23067718, "customers": ["แมคโคร"]}, {"id": 59, "name": "ไข่ไก่ ARO # 2 10 ฟอง", "code": 23067719, "customers": ["แมคโคร"]}, {"id": 60, "name": "ไข่ไก่ ARO # 3 10 ฟอง", "code": 23067720, "customers": ["แมคโคร"]}, {"id": 61, "name": "ไข่ไก่ ARO # 4 10 ฟอง", "code": 23067721, "customers": ["แมคโคร"]}, {"id": 62, "name": "Aeon ไข่ไก่กล่อง CP 10 ฟอง #0", "code": 2220354122, "customers": ["อิออน"]}, {"id": 63, "name": "Aeon ไข่ไก่กล่อง CP 10 ฟอง #1", "code": 2220354123, "customers": ["อิออน"]}, {"id": 64, "name": "Aeon ไข่ไก่กล่อง CP 4 ฟอง #1", "code": 2220354124, "customers": ["อิออน"]}, {"id": 65, "name": "Aeon ไข่ไก่กล่อง CP แพ็ค 15 ฟอง #2", "code": 2220354150, "customers": ["อิออน"]}, {"id": 66, "name": "AeonCPSelectionDHAEggแพ็ค1050-60กรัม", "code": 2220354118, "customers": ["อิออน"]}, {"id": 67, "name": "AeonCPSelectionVitaminE Eggแพ็ค1055-65g.", "code": 2220354121, "customers": ["อิออน"]}, {"id": 68, "name": "AeonUFarmCageFreeEggแพ็ค10 60-70กรัม", "code": 2220354127, "customers": ["อิออน"]}, {"id": 69, "name": "AeonUFarmCageFreeEggแพ็ค4 60-70กรัม", "code": 2220354128, "customers": ["อิออน"]}, {"id": 70, "name": "Aeonไข่ไก่เบญจาโอเมก้า3ตรายูฟาร์มแพค10", "code": 2220354148, "customers": ["อิออน"]}, {"id": 71, "name": "Aeonไข่ไก่เบญจาโอเมก้า3ตรายูฟาร์มแพค4", "code": 2220354147, "customers": ["อิออน"]}, {"id": 72, "name": "Aeonไข่ไก่ฝาครอบ#2CP30ฟอง", "code": 2220354125, "customers": ["อิออน"]}, {"id": 73, "name": "ไข่ไก่กล่อง CP 4 ฟอง #1", "code": 2200354105, "customers": ["เซเว่น"]}, {"id": 74, "name": "ไข่ไก่สดแบร์เอ้กเบอร์2แพ็ก10ฟอง60-65กรัม", "code": 2200354110, "customers": ["เซเว่น"]}, {"id": 75, "name": "ไข่ไก่กล่อง CP 10 ฟอง #4", "code": 2200354100, "customers": ["เซเว่น"]}, {"id": 76, "name": "ไข่ไก่สดแพ็ค 10ฟอง 50-60กรัม แบร์เอ้ก", "code": 2200354019, "customers": ["เซเว่น"]}, {"id": 77, "name": "ไข่ไก่กล่อง CP 10 ฟอง #2", "code": 2200354096, "customers": ["เซเว่น"]}, {"id": 78, "name": "ไข่ไก่ฝาครอบ #3 CP 30 ฟอง", "code": 2200354099, "customers": ["เซเว่น"]}, {"id": 79, "name": "ไข่ไก่สดแพ็ค 30 ฟอง 50-60กรัม แบร์เอ้ก", "code": 2200354020, "customers": ["เซเว่น"]}, {"id": 80, "name": "ไข่ไก่สดแบร์เอ้กเบอร์2แพ็ก30ฟอง60-65กรัม", "code": 2200354111, "customers": ["เซเว่น"]}, {"id": 81, "name": "สินค้าไม่ระบุชื่อ (รหัส 2220352013)", "code": 2220352013, "customers": ["เซเว่น", "โรงแปรรูปหนองจอก"]}, {"id": 82, "name": "สินค้าไม่ระบุชื่อ (รหัส 2220352014)", "code": 2220352014, "customers": ["โรงแปรรูปหนองจอก", "อสร.หนองจอก"]}, {"id": 83, "name": "สินค้าไม่ระบุชื่อ (รหัส 2220352015)", "code": 2220352015, "customers": ["โรงแปรรูปหนองจอก", "อสร.หนองจอก"]}], "stations": [{"name": "เครื่องคัด", "standard": 10000}, {"name": "โต๊ะแพค10", "standard": 10000}, {"name": "โต๊ะส่งออก", "standard": 10000}, {"name": "โต๊ะโลตัส", "standard": 10000}, {"name": "โต๊ะไข่มัด", "standard": 10000}, {"name": "โต๊ะBE", "standard": 10000}, {"name": "โต๊ะแพค4", "standard": 10000}, {"name": "โต๊ะโอเมก้า", "standard": 10000}, {"name": "อื่นๆ", "standard": 10000}]};
+const STATIONS = MASTER.stations.map(s=>s.name);
+const CUSTOMERS = MASTER.customers.map(c=>c.name);
+
+/* =========================================================================
+   RUNTIME MODE  (?mode=display  |  ?zoom=1.2  |  ?date=YYYY-MM-DD)
+   ========================================================================= */
+const QS = new URLSearchParams(location.search);
+const DISPLAY_MODE = (QS.get('mode')||'').toLowerCase()==='display';
+const ROTATE_SEC   = Number(QS.get('rotate')||25);
+const ZOOM         = Number(QS.get('zoom')||0);
+
+/* =========================================================================
+   BACKEND CONFIG
+   mode 'local'      = localStorage เท่านั้น (คนเดียว/เครื่องเดียว)
+   mode 'sharepoint' = SharePoint List REST (ต้อง host ไฟล์ในไซต์เดียวกัน)
+   mode 'api'        = REST endpoint กลาง  GET/PUT {base}/day/{date}
+   ========================================================================= */
+const BACKEND_KEY = 'egg_backend_v1';
+function defaultBackend(){
+  return {mode:'local', siteUrl:'', dayList:'EggDayData', settingsList:'EggConfig',
+          apiBase:'', pollSec:30};
+}
+function loadBackend(){
+  try{ return Object.assign(defaultBackend(), JSON.parse(localStorage.getItem(BACKEND_KEY)||'{}')); }
+  catch(e){ return defaultBackend(); }
+}
+function saveBackend(c){ localStorage.setItem(BACKEND_KEY, JSON.stringify(c)); BE = c; }
+let BE = loadBackend();
+const IS_REMOTE = ()=> BE.mode==='sharepoint' || BE.mode==='api';
+
+/* ---------- sync status pill ---------- */
+let SYNC_STATE = 'local', SYNC_MSG = '';
+function setSync(state, msg){
+  SYNC_STATE = state; SYNC_MSG = msg||'';
+  const el = document.getElementById('syncPill');
+  if(!el) return;
+  el.className = state;
+  const t = {ok:'&#10003; ซิงค์แล้ว', busy:'&#8635; กำลังซิงค์...', err:'&#9888; ออฟไลน์ (เก็บในเครื่อง)', local:'&#128187; โหมดเครื่องเดียว'};
+  el.innerHTML = (t[state]||state) + (msg? ' &middot; '+msg : '');
+  el.title = msg || '';
+}
+
+/* =========================================================================
+   REMOTE ADAPTERS
+   ========================================================================= */
+const Remote = (function(){
+  let digest = null, digestAt = 0;
+
+  function spSite(){ return (BE.siteUrl||'').replace(/\/+$/,''); }
+
+  async function getDigest(){
+    if(digest && Date.now()-digestAt < 15*60*1000) return digest;
+    const r = await fetch(spSite()+'/_api/contextinfo', {method:'POST',
+      headers:{'Accept':'application/json;odata=nometadata'}, credentials:'include'});
+    if(!r.ok) throw new Error('contextinfo '+r.status);
+    const j = await r.json();
+    digest = j.FormDigestValue || (j.d && j.d.GetContextWebInformation.FormDigestValue);
+    digestAt = Date.now();
+    return digest;
+  }
+
+  /* ---- SharePoint: 1 list item ต่อ 1 วัน, JSON อยู่ใน column Payload ---- */
+  async function spGet(list, title){
+    const url = spSite()+"/_api/web/lists/getbytitle('"+encodeURIComponent(list)+"')/items"
+      + "?$select=Id,Title,Payload,Modified&$filter=Title eq '"+title+"'&$top=1";
+    const r = await fetch(url, {headers:{'Accept':'application/json;odata=nometadata'}, credentials:'include'});
+    if(!r.ok) throw new Error('GET '+r.status);
+    const j = await r.json();
+    const it = (j.value||[])[0];
+    if(!it) return null;
+    let payload = null;
+    try{ payload = JSON.parse(it.Payload||'null'); }catch(e){ payload = null; }
+    return {id:it.Id, modified:it.Modified, payload};
+  }
+  async function spPut(list, title, payload){
+    const d = await getDigest();
+    const existing = await spGet(list, title);
+    const body = JSON.stringify({Title:title, Payload:JSON.stringify(payload)});
+    const base = spSite()+"/_api/web/lists/getbytitle('"+encodeURIComponent(list)+"')/items";
+    const h = {'Accept':'application/json;odata=nometadata','Content-Type':'application/json;odata=nometadata','X-RequestDigest':d};
+    let r;
+    if(existing){ h['X-HTTP-Method']='MERGE'; h['IF-MATCH']='*';
+      r = await fetch(base+'('+existing.id+')', {method:'POST',headers:h,body,credentials:'include'}); }
+    else { r = await fetch(base, {method:'POST',headers:h,body,credentials:'include'}); }
+    if(!r.ok) throw new Error('PUT '+r.status);
+    return true;
+  }
+
+  /* ---- Generic REST API ---- */
+  async function apiGet(kind, key){
+    const r = await fetch((BE.apiBase||'').replace(/\/+$/,'')+'/'+kind+'/'+encodeURIComponent(key),
+      {headers:{'Accept':'application/json'}, credentials:'include'});
+    if(r.status===404) return null;
+    if(!r.ok) throw new Error('GET '+r.status);
+    const j = await r.json();
+    return {id:key, modified:j.modified||null, payload:j.payload!==undefined? j.payload : j};
+  }
+  async function apiPut(kind, key, payload){
+    const r = await fetch((BE.apiBase||'').replace(/\/+$/,'')+'/'+kind+'/'+encodeURIComponent(key),
+      {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({payload}),credentials:'include'});
+    if(!r.ok) throw new Error('PUT '+r.status);
+    return true;
+  }
+
+  return {
+    async getDay(date){
+      if(BE.mode==='sharepoint') return spGet(BE.dayList, date);
+      if(BE.mode==='api')        return apiGet('day', date);
+      return null;
+    },
+    async putDay(date, data){
+      if(BE.mode==='sharepoint') return spPut(BE.dayList, date, data);
+      if(BE.mode==='api')        return apiPut('day', date, data);
+      return false;
+    },
+    async getSettings(){
+      if(BE.mode==='sharepoint') return spGet(BE.settingsList, 'SETTINGS');
+      if(BE.mode==='api')        return apiGet('config','SETTINGS');
+      return null;
+    },
+    async putSettings(s){
+      if(BE.mode==='sharepoint') return spPut(BE.settingsList, 'SETTINGS', s);
+      if(BE.mode==='api')        return apiPut('config','SETTINGS', s);
+      return false;
+    },
+    async ping(){
+      if(BE.mode==='sharepoint'){ await getDigest(); return true; }
+      if(BE.mode==='api'){ await apiGet('day','__ping__'); return true; }
+      return false;
+    }
+  };
+})();
+
+/* =========================================================================
+   MERGE — หลายคนกรอกพร้อมกัน
+   production log = union ตาม _id (ไม่หายแม้กรอกชนกัน)
+   orders / confirmed / meta = last-write-wins ตาม _ts
+   ========================================================================= */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+/* เช็คว่าไลบรารี Excel โหลดสำเร็จ (CDN หรือไฟล์ข้างๆ) */
+function xlsxReady(){
+  if(typeof XLSX!=='undefined') return true;
+  alert('ยังโหลดไลบรารี Excel ไม่ได้\n\nวิธีแก้: ดาวน์โหลดไฟล์ xlsx.full.min.js มาวางไว้ในโฟลเดอร์เดียวกับ Dashboard นี้ แล้วเปิดหน้าใหม่');
+  return false;
+}
+function mergeDay(localD, remoteD){
+  if(!remoteD) return localD;
+  if(!localD)  return remoteD;
+  const dead = {};
+  (localD._deleted||[]).concat(remoteD._deleted||[]).forEach(id=>dead[id]=1);
+  const seen = {}, prod = [];
+  (remoteD.production||[]).concat(localD.production||[]).forEach(p=>{
+    if(p._id && dead[p._id]) return;                 // ถูกลบไปแล้ว ไม่เอากลับมา
+    const k = p._id || (p.station+'|'+p.code+'|'+p.customer+'|'+p.time+'|'+p.qty);
+    if(!seen[k]){ seen[k]=1; prod.push(p); }
+  });
+  prod.sort((a,b)=> String(a.time||'').localeCompare(String(b.time||'')));
+  const lt = localD._ts||0, rt = remoteD._ts||0;
+  const newer = lt>=rt ? localD : remoteD;
+  const older = lt>=rt ? remoteD : localD;
+  const orders = JSON.parse(JSON.stringify(older.orders||{}));
+  Object.keys(newer.orders||{}).forEach(code=>{
+    if(!orders[code]) orders[code] = JSON.parse(JSON.stringify(newer.orders[code]));
+    else Object.assign(orders[code].byCustomer, newer.orders[code].byCustomer||{});
+  });
+  return {
+    orders, production: prod,
+    confirmed: Object.assign({}, older.confirmed||{}, newer.confirmed||{}),
+    orderImportedAt: newer.orderImportedAt || older.orderImportedAt || null,
+    prodImportedAt:  newer.prodImportedAt  || older.prodImportedAt  || null,
+    _deleted: Object.keys(dead),
+    _ts: Math.max(lt, rt)
+  };
+}
+
+// ---------- Settings ----------
+const SETTINGS_KEY = 'egg_settings_v1';
+function defaultSettings(){
+  const deliveryTimes = {}; MASTER.customers.forEach(c=>deliveryTimes[c.name]=c.deliveryTime||'18:00');
+  const standards = {}; MASTER.stations.forEach(s=>standards[s.name]=s.standard||10000);
+  return {deliveryTimes, standards, shiftStart:'06:00', pin:'1234'};
+}
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if(!raw) return defaultSettings();
+    const s = JSON.parse(raw);
+    const def = defaultSettings();
+    return {deliveryTimes:{...def.deliveryTimes,...s.deliveryTimes}, standards:{...def.standards,...s.standards}, shiftStart:s.shiftStart||def.shiftStart, pin:s.pin||def.pin};
+  }catch(e){return defaultSettings();}
+}
+function saveSettings(s){
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  if(IS_REMOTE() && !DISPLAY_MODE){
+    setSync('busy','ตั้งค่า');
+    Remote.putSettings(s).then(()=>setSync('ok')).catch(e=>setSync('err', String(e.message||e)));
+  }
+}
+let SETTINGS = loadSettings();
+
+// ---------- Day data ----------
+function dayKey(dateStr){ return 'egg_day_' + dateStr; }
+function emptyDay(){ return {orders:{}, production:[], orderImportedAt:null, prodImportedAt:null, confirmed:{}, _deleted:[], _ts:0}; }
+function loadDay(dateStr){
+  try{
+    const raw = localStorage.getItem(dayKey(dateStr));
+    if(!raw) return emptyDay();
+    const d = JSON.parse(raw);
+    return {orders:d.orders||{}, production:d.production||[], orderImportedAt:d.orderImportedAt||null, prodImportedAt:d.prodImportedAt||null, confirmed:d.confirmed||{}, _deleted:d._deleted||[], _ts:d._ts||0};
+  }catch(e){ return emptyDay(); }
+}
+/* saveDay: เขียน cache ในเครื่องทันที (ไม่มีวันเสียข้อมูล) แล้วค่อย push ขึ้น server */
+const PENDING_KEY = 'egg_pending_v1';
+function loadPending(){ try{ return JSON.parse(localStorage.getItem(PENDING_KEY)||'{}'); }catch(e){ return {}; } }
+function markPending(dateStr){ const p=loadPending(); p[dateStr]=Date.now(); localStorage.setItem(PENDING_KEY, JSON.stringify(p)); }
+function clearPending(dateStr){ const p=loadPending(); delete p[dateStr]; localStorage.setItem(PENDING_KEY, JSON.stringify(p)); }
+
+function saveDay(dateStr, data){
+  data._ts = Date.now();
+  localStorage.setItem(dayKey(dateStr), JSON.stringify(data));
+  if(!IS_REMOTE() || DISPLAY_MODE) return;
+  markPending(dateStr);
+  pushDay(dateStr);
+}
+let _pushTimer = null;
+function pushDay(dateStr){
+  clearTimeout(_pushTimer);
+  _pushTimer = setTimeout(async ()=>{
+    setSync('busy');
+    try{
+      const remote = await Remote.getDay(dateStr);
+      const merged = mergeDay(loadDay(dateStr), remote? remote.payload : null);
+      localStorage.setItem(dayKey(dateStr), JSON.stringify(merged));
+      await Remote.putDay(dateStr, merged);
+      clearPending(dateStr);
+      if(dateStr===currentDate){ DAY = merged; renderAll(); }
+      setSync('ok');
+    }catch(e){ setSync('err', String(e.message||e)); }
+  }, 700);   // debounce กันยิงถี่
+}
+/* retry คิวที่ค้างเมื่อกลับมาออนไลน์ */
+async function flushPending(){
+  if(!IS_REMOTE() || DISPLAY_MODE) return;
+  const p = loadPending();
+  for(const d of Object.keys(p)){
+    try{
+      const remote = await Remote.getDay(d);
+      const merged = mergeDay(loadDay(d), remote? remote.payload : null);
+      localStorage.setItem(dayKey(d), JSON.stringify(merged));
+      await Remote.putDay(d, merged);
+      clearPending(d);
+      if(d===currentDate){ DAY = merged; renderAll(); }
+      setSync('ok');
+    }catch(e){ setSync('err', String(e.message||e)); return; }
+  }
+}
+window.addEventListener('online', flushPending);
+
+/* ดึงข้อมูลจาก server มา merge (ใช้ตอนเปิดหน้า / เปลี่ยนวัน / poll) */
+async function pullDay(dateStr, silent){
+  if(!IS_REMOTE()) return;
+  if(!silent) setSync('busy');
+  try{
+    const remote = await Remote.getDay(dateStr);
+    if(remote && remote.payload){
+      const merged = mergeDay(loadDay(dateStr), remote.payload);
+      localStorage.setItem(dayKey(dateStr), JSON.stringify(merged));
+      if(dateStr===currentDate){ DAY = merged; if(Object.keys(DAY.orders).length===0) seedOrdersFromMaster(); renderAll(); }
+    }
+    setSync('ok');
+  }catch(e){ setSync('err', String(e.message||e)); }
+}
+async function pullSettings(){
+  if(!IS_REMOTE()) return;
+  try{
+    const r = await Remote.getSettings();
+    if(r && r.payload){
+      const def = defaultSettings(); const s = r.payload;
+      SETTINGS = {deliveryTimes:{...def.deliveryTimes,...s.deliveryTimes}, standards:{...def.standards,...s.standards},
+                  shiftStart:s.shiftStart||def.shiftStart, pin:s.pin||def.pin};
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(SETTINGS));
+      if(typeof populatePage5==='function') populatePage5();
+      renderAll();
+    }
+  }catch(e){/* ใช้ค่าในเครื่องต่อไป */}
+}
+
+let currentDate = QS.get('date') || new Date().toISOString().slice(0,10);
+let DAY = loadDay(currentDate);
+
+// product lookup: master products by code (string key) and by name
+const masterProductByCode = {};
+MASTER.products.forEach(p=>{ masterProductByCode[String(p.code)] = p; });
+function findMasterProductByName(name){
+  if(!name) return null;
+  const n = String(name).trim();
+  return MASTER.products.find(p=>p.name.trim()===n) || null;
+}
+// ensure a product entry exists in DAY.orders (creates if missing) using code as key
+function ensureOrderProduct(code, name){
+  const key = String(code);
+  if(!DAY.orders[key]) DAY.orders[key] = {name: name || (masterProductByCode[key]? masterProductByCode[key].name : ('รหัส '+key)), byCustomer:{}};
+  if(name && DAY.orders[key].name.startsWith('รหัส ')) DAY.orders[key].name = name;
+  return DAY.orders[key];
+}
+// pre-seed today's order rows from master mapping (regular orders) so table isn't empty before import
+function seedOrdersFromMaster(){
+  MASTER.products.forEach(p=>{
+    const key = String(p.code);
+    if(!DAY.orders[key]){
+      DAY.orders[key] = {name:p.name, byCustomer:{}};
+    }
+    p.customers.forEach(cust=>{
+      if(DAY.orders[key].byCustomer[cust]===undefined){
+        DAY.orders[key].byCustomer[cust]=0;
+      }
+    });
+  });
+}
+
+// ---------- Utility ----------
+function fmt(n){ return Math.round(n||0).toLocaleString('th-TH'); }
+function pct(a,b){ if(!b) return a>0?100:0; return (a/b)*100; }
+function pctColor(p){ if(p>=100) return 'var(--green)'; if(p>=70) return 'var(--amber)'; return 'var(--red)'; }
+function customerStatusColor(pc, hasOrder){ if(!hasOrder) return 'var(--gray-400)'; if(pc>=100) return 'var(--green-800)'; if(pc>=80) return 'var(--orange)'; return 'var(--red)'; }
+function nowHM(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function timeToMinutes(t){ if(!t) return 0; const [h,m]=t.split(':').map(Number); return h*60+(m||0); }
+
+function customerTotalOrdered(cust){
+  let sum=0;
+  Object.values(DAY.orders).forEach(row=>{ sum += Number(row.byCustomer[cust]||0); });
+  return sum;
+}
+function customerTotalProduced(cust){
+  let sum=0;
+  DAY.production.forEach(e=>{ if(e.customer===cust) sum+=Number(e.qty||0); });
+  return sum;
+}
+function productTotalOrdered(code){
+  const row = DAY.orders[String(code)];
+  if(!row) return 0;
+  return Object.values(row.byCustomer).reduce((a,b)=>a+Number(b||0),0);
+}
+function productProducedForCustomer(code, cust){
+  let sum=0;
+  DAY.production.forEach(e=>{ if(String(e.code)===String(code) && e.customer===cust) sum+=Number(e.qty||0); });
+  return sum;
+}
+function stationTotalQty(station){
+  let sum=0; DAY.production.forEach(e=>{ if(e.station===station) sum+=Number(e.qty||0); }); return sum;
+}
+function stationProductBreakdown(station){
+  const map={};
+  DAY.production.forEach(e=>{
+    if(e.station!==station) return;
+    const key=String(e.code);
+    if(!map[key]) map[key]={name:e.name||(masterProductByCode[key]?masterProductByCode[key].name:('รหัส '+key)), qty:0};
+    map[key].qty+=Number(e.qty||0);
+  });
+  return map;
+}
+
+// ---------- Excel Import: Orders ----------
+function parseOrderWorkbook(wb){
+  let rows=null, headerRowIdx=-1, custColMap={};
+  for(const sheetName of wb.SheetNames){
+    const sheet = wb.Sheets[sheetName];
+    const candidateRows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:null});
+    for(let i=0;i<candidateRows.length;i++){
+      const row = candidateRows[i];
+      let matches=0; const map={};
+      row.forEach((cell,ci)=>{
+        if(cell && CUSTOMERS.includes(String(cell).trim())){ matches++; map[ci]=String(cell).trim(); }
+      });
+      if(matches>=10){ headerRowIdx=i; custColMap=map; rows=candidateRows; break; }
+    }
+    if(headerRowIdx!==-1) break;
+  }
+  if(headerRowIdx===-1) throw new Error('ไม่พบหัวตารางลูกค้าในไฟล์ที่นำเข้า (ต้องมีชื่อลูกค้าอย่างน้อย 10 รายในแถวเดียวกัน)');
+  // detect name/code columns dynamically: scan columns to the left of the first customer column
+  // using the first few data rows, find a numeric-looking column (product code) and a text column (product name)
+  const minCustCol = Math.min(...Object.keys(custColMap).map(Number));
+  let nameCol=-1, codeCol=-1;
+  for(let r=headerRowIdx+1; r<Math.min(headerRowIdx+6, rows.length); r++){
+    const row = rows[r]; if(!row) continue;
+    for(let ci=0; ci<minCustCol; ci++){
+      const v = row[ci];
+      if(v===null||v===undefined||v==='') continue;
+      const isNumeric = !isNaN(Number(v)) && String(v).trim()!=='';
+      if(isNumeric && codeCol===-1) codeCol = ci;
+      if(!isNumeric && nameCol===-1) nameCol = ci;
+    }
+    if(nameCol!==-1 && codeCol!==-1) break;
+  }
+  if(nameCol===-1) nameCol = 0;
+  if(codeCol===-1) codeCol = nameCol; // fallback: use name as code too
+  const newOrders = {};
+  for(let r=headerRowIdx+1; r<rows.length; r++){
+    const row = rows[r]; if(!row) continue;
+    const rawName = row[nameCol]; const rawCode = row[codeCol];
+    const rowText = (row[0]||'')+''+(rawName||'');
+    if(String(rowText).includes('รวม')) break;
+    if((rawName===null||rawName===undefined) && (rawCode===null||rawCode===undefined)) continue;
+    const code = rawCode!==null && rawCode!==undefined ? String(rawCode).trim() : String(rawName).trim();
+    const name = rawName!==null && rawName!==undefined ? String(rawName).trim() : code;
+    if(!code) continue;
+    if(!newOrders[code]) newOrders[code] = {name, byCustomer:{}};
+    Object.entries(custColMap).forEach(([ci,custName])=>{
+      const v = row[Number(ci)];
+      const qty = (v===null||v===undefined||v==='') ? 0 : Number(v)||0;
+      newOrders[code].byCustomer[custName] = (newOrders[code].byCustomer[custName]||0) + qty;
+    });
+  }
+  return newOrders;
+}
+
+document.getElementById('btnImportOrder').addEventListener('click', ()=>document.getElementById('fileOrder').click());
+document.getElementById('fileOrder').addEventListener('change', function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      if(!xlsxReady()) return;
+      const wb = XLSX.read(ev.target.result, {type:'array'});
+      const newOrders = parseOrderWorkbook(wb);
+      DAY.orders = newOrders;
+      seedOrdersFromMaster();
+      DAY.orderImportedAt = new Date().toISOString();
+      saveDay(currentDate, DAY);
+      renderAll();
+      document.getElementById('orderImportInfo').textContent = 'นำเข้าล่าสุด: ' + new Date(DAY.orderImportedAt).toLocaleString('th-TH');
+      alert('นำเข้าออเดอร์สำเร็จ');
+    }catch(err){ alert('นำเข้าไฟล์ไม่สำเร็จ: '+err.message); }
+    e.target.value='';
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+// ---------- Excel Import: Production ----------
+function parseProdWorkbook(wb){
+  let rows=null, headerRowIdx=-1, colMap={};
+  const keywords = {time:['เวลา'], station:['จุดงาน','สถานี'], code:['รหัสสินค้า','รหัส'], name:['ชื่อสินค้า','รายการสินค้า'], customer:['ลูกค้า'], qty:['จำนวน','ฟอง']};
+  for(const sheetName of wb.SheetNames){
+    const sheet = wb.Sheets[sheetName];
+    const candidateRows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:null});
+    for(let i=0;i<Math.min(candidateRows.length,15);i++){
+      const row = candidateRows[i]; if(!row) continue;
+      const map={};
+      row.forEach((cell,ci)=>{
+        if(cell===null||cell===undefined) return;
+        const c = String(cell).trim();
+        Object.entries(keywords).forEach(([key,kws])=>{
+          if(kws.some(k=>c.includes(k)) && map[key]===undefined && !Object.values(map).includes(ci)) map[key]=ci;
+        });
+      });
+      if(map.station!==undefined && map.qty!==undefined && (map.code!==undefined||map.name!==undefined)){
+        headerRowIdx=i; colMap=map; rows=candidateRows; break;
+      }
+    }
+    if(headerRowIdx!==-1) break;
+  }
+  if(headerRowIdx===-1) throw new Error('ไม่พบหัวตารางที่ถูกต้อง (ต้องมีคอลัมน์ จุดงาน, สินค้า/รหัส, จำนวน)');
+  const entries=[];
+  for(let r=headerRowIdx+1;r<rows.length;r++){
+    const row=rows[r]; if(!row) continue;
+    const station = colMap.station!==undefined ? row[colMap.station] : null;
+    const qty = colMap.qty!==undefined ? row[colMap.qty] : null;
+    if(!station && !qty) continue;
+    if(!station || qty===null || qty===undefined || qty==='') continue;
+    let code = colMap.code!==undefined ? row[colMap.code] : null;
+    let name = colMap.name!==undefined ? row[colMap.name] : null;
+    if(!code && name){
+      const mp = findMasterProductByName(name);
+      code = mp ? mp.code : name;
+    }
+    if(!name && code){ name = masterProductByCode[String(code)] ? masterProductByCode[String(code)].name : String(code); }
+    if(!code) continue;
+    const timeVal = colMap.time!==undefined ? row[colMap.time] : null;
+    const customer = colMap.customer!==undefined ? row[colMap.customer] : '';
+    entries.push({
+      time: normalizeTime(timeVal),
+      station: String(station).trim(),
+      code: String(code).trim(),
+      name: String(name||code).trim(),
+      customer: customer?String(customer).trim():'',
+      qty: Number(qty)||0
+    });
+  }
+  return entries;
+}
+function normalizeTime(v){
+  if(v===null||v===undefined||v==='') return nowHM();
+  if(typeof v === 'number'){ // excel time fraction of day
+    const totalMin = Math.round(v*24*60);
+    const h=Math.floor(totalMin/60)%24, m=totalMin%60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  }
+  const s = String(v).trim();
+  const m = s.match(/(\d{1,2}):(\d{2})/);
+  if(m) return m[1].padStart(2,'0')+':'+m[2];
+  return nowHM();
+}
+
+function handleProdImport(mode){
+  const inp = document.getElementById('fileProd');
+  inp.onchange = function(e){
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        if(!xlsxReady()) return;
+        const wb = XLSX.read(ev.target.result, {type:'array'});
+        const entries = parseProdWorkbook(wb);
+        entries.forEach(en=>{ if(!en._id) en._id = uid(); });
+        if(mode==='replace') DAY.production = entries;
+        else DAY.production = DAY.production.concat(entries);
+        DAY.prodImportedAt = new Date().toISOString();
+        saveDay(currentDate, DAY);
+        renderAll();
+        document.getElementById('prodImportInfo').textContent = 'นำเข้าล่าสุด: ' + new Date(DAY.prodImportedAt).toLocaleString('th-TH') + ' (' + entries.length + ' แถว)';
+        alert('นำเข้ายอดผลิตสำเร็จ ('+entries.length+' แถว)');
+      }catch(err){ alert('นำเข้าไฟล์ไม่สำเร็จ: '+err.message); }
+      e.target.value='';
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  inp.click();
+}
+document.getElementById('btnImportProdReplace').addEventListener('click', ()=>handleProdImport('replace'));
+document.getElementById('btnImportProdAppend').addEventListener('click', ()=>handleProdImport('append'));
+
+document.getElementById('btnDownloadTemplate').addEventListener('click', ()=>{
+  const data = [['เวลา','จุดงาน','รหัสสินค้า','ชื่อสินค้า','ลูกค้า','จำนวนที่ผลิตได้(ฟอง)']];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  if(!xlsxReady()) return;
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ยอดผลิต');
+  XLSX.writeFile(wb, 'เทมเพลตยอดผลิต.xlsx');
+});
+
+document.getElementById('btnExportProdXlsx').addEventListener('click', ()=>{
+  const data = [['เวลา','จุดงาน','รหัสสินค้า','สินค้า','ลูกค้า','จำนวนที่ผลิตได้(ฟอง)']];
+  DAY.production.forEach(e=>{
+    data.push([e.time||'', e.station||'', e.code||'', e.name||'', e.customer||'', Number(e.qty||0)]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  if(!xlsxReady()) return;
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ยอดผลิต');
+  XLSX.writeFile(wb, 'ยอดผลิตวันนี้_'+currentDate+'.xlsx');
+});
+
+document.getElementById('btnExportOrderXlsx').addEventListener('click', ()=>{
+  const data = [['รหัสสินค้า','ชื่อสินค้า','ลูกค้า','จำนวนที่สั่ง(ฟอง)']];
+  Object.keys(DAY.orders).forEach(code=>{
+    const row = DAY.orders[code];
+    Object.keys(row.byCustomer).forEach(cust=>{
+      const qty = Number(row.byCustomer[cust]||0);
+      if(qty>0){
+        data.push([code, row.name, cust, qty]);
+      }
+    });
+  });
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  if(!xlsxReady()) return;
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ออเดอร์');
+  XLSX.writeFile(wb, 'ออเดอร์ลูกค้า_'+currentDate+'.xlsx');
+});
+
+// ---------- Manual add production ----------
+function populateSelects(){
+  const sSel = document.getElementById('mStation'); sSel.innerHTML = STATIONS.map(s=>`<option>${s}</option>`).join('');
+  const cSel = document.getElementById('mCustomer'); cSel.innerHTML = CUSTOMERS.map(c=>`<option>${c}</option>`).join('');
+  const pSel = document.getElementById('mProduct');
+  pSel.innerHTML = MASTER.products.map(p=>`<option value="${p.code}">${p.name}</option>`).join('');
+  document.getElementById('mTime').value = nowHM();
+}
+document.getElementById('btnAddManual').addEventListener('click', ()=>{
+  const time = nowHM();
+  const station = document.getElementById('mStation').value;
+  const pSel = document.getElementById('mProduct');
+  const code = pSel.value;
+  const name = pSel.options[pSel.selectedIndex].text;
+  const customer = document.getElementById('mCustomer').value;
+  const qty = Number(document.getElementById('mQty').value);
+  if(!qty || qty<=0){ alert('กรุณากรอกจำนวนที่ผลิตได้'); return; }
+  DAY.production.push({_id:uid(), time, station, code, name, customer, qty});
+  saveDay(currentDate, DAY);
+  document.getElementById('mQty').value='';
+  renderAll();
+});
+
+// ---------- Rendering: Page 1 ----------
+function elapsedHoursSinceShift(){
+  const shiftStart = SETTINGS.shiftStart || '06:00';
+  const nowMin = timeToMinutes(nowHM());
+  let elapsedH = (nowMin - timeToMinutes(shiftStart))/60;
+  if(elapsedH<=0) elapsedH = 0.1;
+  return elapsedH;
+}
+
+function renderStatCards(){
+  const totalOrder = Object.values(DAY.orders).reduce((a,row)=>a+Object.values(row.byCustomer).reduce((x,y)=>x+Number(y||0),0),0);
+  const totalProd = DAY.production.reduce((a,e)=>a+Number(e.qty||0),0);
+  const overallPct = pct(totalProd,totalOrder);
+  let completeCount=0, incompleteCount=0, noOrderCount=0;
+  CUSTOMERS.forEach(c=>{
+    const o=customerTotalOrdered(c), p=customerTotalProduced(c);
+    if(o<=0) noOrderCount++; else if(p>=o) completeCount++; else incompleteCount++;
+  });
+  const el = document.getElementById('statCards');
+  el.innerHTML = `
+    <div class="card kpi"><div class="kpi-ico">&#9635;</div><div><div class="label">ยอดออเดอร์วันนี้</div><div class="value">${fmt(totalOrder)}<span class="unit">ฟอง</span></div></div></div>
+    <div class="card kpi"><div class="kpi-ico">&#9819;</div><div><div class="label">ยอดผลิตรวมวันนี้</div><div class="value">${fmt(totalProd)}<span class="unit">ฟอง</span></div></div></div>
+    <div class="card kpi"><div class="kpi-ico">%</div><div><div class="label">% สำเร็จรวม</div><div class="value" style="color:${pctColor(overallPct)}">${overallPct.toFixed(1)}%</div><div style="color:#777;margin-top:6px;font-size:13px;">เทียบออเดอร์</div></div></div>
+    <div class="card kpi"><div><div class="label">สถานะลูกค้า</div><div class="pills">
+      <span class="pill green">ครบ ${completeCount}</span><span class="pill red">ไม่ครบ ${incompleteCount}</span><span class="pill gray">ไม่มีออเดอร์ ${noOrderCount}</span>
+    </div></div></div>`;
+}
+
+function renderCustomerBarChart(){
+  const barsEl = document.getElementById('bars');
+  const yAxisEl = document.getElementById('chartYAxis');
+  const nowMin = timeToMinutes(nowHM());
+  let data = CUSTOMERS.map(c=>{
+    const o = customerTotalOrdered(c), p = customerTotalProduced(c);
+    const remain = Math.max(o-p,0);
+    const delTime = SETTINGS.deliveryTimes[c]||'18:00';
+    const overdue = nowMin > timeToMinutes(delTime) && remain>0;
+    return {c, o, p, short: overdue?remain:0, remain: overdue?0:remain};
+  }).filter(d=>d.o>0).sort((a,b)=>b.o-a.o);
+  barsEl.innerHTML='';
+  if(data.length===0){
+    barsEl.innerHTML = '<div class="smallnote" style="padding:20px;">ยังไม่มีออเดอร์วันนี้</div>';
+    yAxisEl.innerHTML='';
+    return;
+  }
+  const maxOrder = Math.max(...data.map(d=>d.o));
+  const niceMax = Math.max(5000, Math.ceil(maxOrder/5000)*5000);
+  yAxisEl.innerHTML = '';
+  for(let i=5;i>=0;i--){
+    const span = document.createElement('span');
+    span.textContent = fmt(niceMax/5*i);
+    yAxisEl.appendChild(span);
+  }
+  data.forEach(d=>{
+    const total = d.p + d.short + d.remain;
+    const col = document.createElement('div'); col.className='bar-col'; col.setAttribute('data-cust', d.c);
+    const stack = document.createElement('div'); stack.className='stack';
+    stack.style.height = Math.max(2, total/niceMax*100) + '%';
+    const p = document.createElement('div'); p.className='seg prod'; p.style.height=(d.p/Math.max(total,1)*100)+'%';
+    const s = document.createElement('div'); s.className='seg short'; s.style.height=(d.short/Math.max(total,1)*100)+'%';
+    const r = document.createElement('div'); r.className='seg remain'; r.style.height=(d.remain/Math.max(total,1)*100)+'%';
+    stack.append(p,s,r);
+    const lab = document.createElement('div'); lab.className='xlab'; lab.textContent=d.c;
+    col.append(stack,lab);
+    col.addEventListener('click', ()=>{ switchPage('p4'); selectCustomer(d.c); });
+    col.addEventListener('mouseenter', (e)=>{ showChartTooltip(e, d); });
+    col.addEventListener('mousemove', (e)=>{ positionChartTooltip(e); });
+    col.addEventListener('mouseleave', ()=>{ hideChartTooltip(); });
+    barsEl.appendChild(col);
+  });
+}
+
+function showChartTooltip(e, d){
+  const tt = document.getElementById('chartTooltip');
+  if(!tt) return;
+  const shortfall = d.short + d.remain;
+  tt.innerHTML = `<div class="tt-title">${d.c}</div>
+    <div class="tt-row"><span>ยอดผลิต:</span><b>${fmt(d.p)} ฟอง</b></div>
+    <div class="tt-row"><span>ยอดขาด:</span><b style="color:#ff8f8f">${fmt(shortfall)} ฟอง</b></div>
+    <div class="tt-row"><span>ยอดออเดอร์:</span><b>${fmt(d.o)} ฟอง</b></div>`;
+  tt.style.display='block';
+  positionChartTooltip(e);
+}
+function positionChartTooltip(e){
+  const tt = document.getElementById('chartTooltip');
+  if(!tt) return;
+  let left = e.clientX + 16, top = e.clientY + 16;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const rect = tt.getBoundingClientRect();
+  if(left + rect.width > vw) left = e.clientX - rect.width - 16;
+  if(top + rect.height > vh) top = e.clientY - rect.height - 16;
+  tt.style.left = left + 'px';
+  tt.style.top = top + 'px';
+}
+function hideChartTooltip(){
+  const tt = document.getElementById('chartTooltip');
+  if(tt) tt.style.display='none';
+}
+
+function renderTop5(){
+  const el = document.getElementById('top5Body');
+  const data = CUSTOMERS.map(c=>{
+    const o = customerTotalOrdered(c), p = customerTotalProduced(c);
+    const remain = Math.max(o-p,0);
+    return {c, o, p, remain, delTime: SETTINGS.deliveryTimes[c]||'18:00'};
+  }).filter(d=>d.o>0 && d.remain>0).sort((a,b)=>b.remain-a.remain).slice(0,5);
+  el.innerHTML = data.map((d,i)=>{
+    const pc = pct(d.p,d.o);
+    return `<tr data-cust="${d.c}" style="cursor:pointer;">
+      <td><span class="rank">${i+1}</span></td>
+      <td><b>${d.c}</b></td>
+      <td class="neg"><b>-${fmt(d.remain)}</b></td>
+      <td class="neg">${pc.toFixed(1)}%</td>
+      <td>${d.delTime} น.</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan=5 style="color:var(--gray-600)">ไม่มีลูกค้าที่ยอดขาด</td></tr>';
+  el.querySelectorAll('tr[data-cust]').forEach(tr=>tr.addEventListener('click', ()=>{
+    switchPage('p4'); selectCustomer(tr.getAttribute('data-cust'));
+  }));
+}
+
+function renderStationEffTable(){
+  const el = document.getElementById('stationEffTable');
+  const rows = {qty:[], target:[], diff:[], pct:[]};
+  STATIONS.forEach(st=>{
+    const qty = stationTotalQty(st);
+    const target = SETTINGS.standards[st]||10000;
+    rows.qty.push(qty); rows.target.push(target); rows.diff.push(qty-target); rows.pct.push(pct(qty,target));
+  });
+  const head = `<thead><tr><th>จุดงาน</th>${STATIONS.map(s=>`<th>${s}</th>`).join('')}</tr></thead>`;
+  const body = `<tbody>
+    <tr><td>ยอดผลิต (ฟอง)</td>${rows.qty.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>
+    <tr><td>เป้าหมาย (ฟอง)</td>${rows.target.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>
+    <tr><td>ยอดผลิตเทียบเป้า (ฟอง)</td>${rows.diff.map(v=>`<td class="${v>=0?'pos':'neg'}">${v>=0?'+':''}${fmt(v)}</td>`).join('')}</tr>
+    <tr><td>% สำเร็จ</td>${rows.pct.map(v=>{
+      const cls = v>=100 ? 'pct-green' : 'pct-orange';
+      const barColor = v>=100 ? '#087c41' : 'var(--orange)';
+      return `<td class="${cls}">${v.toFixed(1)}%<div class="ptrack"><span style="width:${Math.min(v,100)}%;background:${barColor}"></span></div></td>`;
+    }).join('')}</tr>
+  </tbody>`;
+  el.innerHTML = head+body;
+}
+
+function renderTotalShortfall(){
+  const el = document.getElementById('totalShortfallCard');
+  let total=0;
+  CUSTOMERS.forEach(c=>{ total += Math.max(customerTotalOrdered(c)-customerTotalProduced(c),0); });
+  el.innerHTML = `
+    <div class="summary-x">&times;</div>
+    <div><div class="small">ยอดขาดรวม (ฟอง)</div><div class="big">${fmt(total)}<span class="unit"> ฟอง</span></div></div>`;
+}
+
+function renderPage1(){
+  renderStatCards();
+  renderCustomerBarChart();
+  renderTop5();
+  renderStationEffTable();
+  renderTotalShortfall();
+}
+
+function customerRowsForAccordion(cust){
+  // union of master mapping products for cust + any product ordered today for cust
+  const codes = new Set();
+  MASTER.products.forEach(p=>{ if(p.customers.includes(cust)) codes.add(String(p.code)); });
+  Object.entries(DAY.orders).forEach(([code,row])=>{ if(row.byCustomer[cust]!==undefined) codes.add(code); });
+  return Array.from(codes);
+}
+
+function renderOrderAccordion(){
+  const el = document.getElementById('orderAccordion');
+  const onlyIncomplete = document.getElementById('onlyIncomplete').checked;
+  const nowMin = timeToMinutes(nowHM());
+  let list = CUSTOMERS.map(cust=>{
+    const totalO = customerTotalOrdered(cust), totalP = customerTotalProduced(cust);
+    const isComplete = totalO>0 && totalP>=totalO;
+    const delTime = SETTINGS.deliveryTimes[cust]||'18:00';
+    const delMin = timeToMinutes(delTime);
+    const overdue = nowMin > delMin && totalO>0 && totalP<totalO;
+    const sortKey = delMin < nowMin ? (delMin - 1440) : delMin;
+    return {cust, totalO, totalP, isComplete, delTime, overdue, sortKey};
+  });
+  if(onlyIncomplete) list = list.filter(d=>!(d.isComplete || d.totalO<=0));
+  list.sort((a,b)=>a.sortKey-b.sortKey);
+
+  let html='';
+  list.forEach(d=>{
+    const {cust, totalO, totalP, delTime, overdue} = d;
+    const codes = customerRowsForAccordion(cust);
+    const custObj = MASTER.customers.find(c=>c.name===cust);
+    const tag = custObj && custObj.type==='internal' ? '<span class="tag-internal">โอนเครือ</span>' : '';
+    const pc = totalO>0 ? pct(totalP,totalO) : 0;
+    const barColor = customerStatusColor(pc, totalO>0);
+    const confirmed = !!(DAY.confirmed && DAY.confirmed[cust]);
+    let rows='';
+    let completeCount = 0, shortCount = 0;
+    codes.forEach(code=>{
+      const orow = DAY.orders[code];
+      const ordered = orow ? Number(orow.byCustomer[cust]||0) : 0;
+      if(ordered<=0 && !orow) return;
+      const produced = productProducedForCustomer(code, cust);
+      const remain = Math.max(ordered-produced,0);
+      const name = orow ? orow.name : (masterProductByCode[code]?masterProductByCode[code].name:code);
+      const status = ordered<=0 ? '<span class="badge gray">ไม่ได้สั่ง</span>' : (remain<=0 ? '<span class="badge green">ครบ</span>' : `<span class="badge red">ขาด ${fmt(remain)}</span>`);
+      if(ordered>0){ if(remain<=0) completeCount++; else shortCount++; }
+      rows += `<tr>
+        <td>${name}</td>
+        <td>${fmt(ordered)}</td>
+        <td>${fmt(produced)}</td>
+        <td>${fmt(remain)}</td>
+        <td>${status}</td>
+      </tr>`;
+    });
+    html += `<div class="acc-item${confirmed?' cstatus-confirmed':''}">
+      <div class="acc-head cstatus-row" data-toggle>
+        <div class="cstatus-info">
+          <span class="cstatus-name">${cust}</span> ${tag}
+          <span class="badge gray">ส่ง ${delTime} น.</span>
+          ${overdue?'<span class="badge red">เลยเวลาส่ง!</span>':''}
+          ${confirmed?'<span class="badge green">&#10003; ปิดงานแล้ว</span>':''}
+        </div>
+        <div class="cstatus-track"><div class="cstatus-fill" style="width:${totalO>0?Math.min(pc,100):0}%;background:${barColor}"></div></div>
+        <div class="cstatus-qty">${fmt(totalP)} / ${fmt(totalO)} ฟอง</div>
+        <div class="cstatus-items">
+          <span class="badge green">ครบ ${completeCount} รายการ</span>
+          <span class="badge red">ขาด ${shortCount} รายการ</span>
+        </div>
+        <div class="cstatus-pct" style="color:${barColor}">${totalO>0?pc.toFixed(0)+'%':'-'}</div>
+        <button type="button" class="btn small cstatus-confirm-btn${confirmed?' secondary':''}" data-confirm-cust="${cust}">${confirmed?'ยกเลิกยืนยัน':'&#10003; ปิดงาน'}</button>
+      </div>
+      <div class="acc-body"><div class="tblwrap"><table><thead><tr><th>สินค้า</th><th>ออเดอร์(ฟอง)</th><th>ผลิตได้(ฟอง)</th><th>คงเหลือ(ฟอง)</th><th>สถานะ</th></tr></thead><tbody>${rows||'<tr><td colspan=5 style="color:var(--gray)">ไม่มีรายการสินค้า</td></tr>'}</tbody></table></div></div>
+    </div>`;
+  });
+  el.innerHTML = html || '<div class="smallnote">ไม่มีลูกค้าที่ตรงกับเงื่อนไข</div>';
+  el.querySelectorAll('[data-toggle]').forEach(h=>h.addEventListener('click', (e)=>{
+    if(e.target.closest('[data-confirm-cust]')) return;
+    h.parentElement.classList.toggle('open');
+  }));
+  el.querySelectorAll('[data-confirm-cust]').forEach(btn=>btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const cust = btn.getAttribute('data-confirm-cust');
+    if(!DAY.confirmed) DAY.confirmed = {};
+    const already = !!DAY.confirmed[cust];
+    if(already){
+      if(!confirm('ยกเลิกการยืนยันสถานะสินค้าครบของ "'+cust+'" ใช่หรือไม่?')) return;
+      delete DAY.confirmed[cust];
+    } else {
+      if(!confirm('ยืนยันว่าสินค้าของ "'+cust+'" ผลิตครบแล้ว และปิดงานสำหรับวันนี้ใช่หรือไม่?')) return;
+      DAY.confirmed[cust] = true;
+    }
+    saveDay(currentDate, DAY);
+    renderAll();
+  }));
+}
+
+let editingOrderCustomers = new Set();
+function renderOrderEditAccordion(){
+  const el = document.getElementById('orderEditAccordion');
+  if(!el) return;
+  const onlyIncomplete = document.getElementById('onlyIncomplete');
+  const filterIncomplete = onlyIncomplete ? onlyIncomplete.checked : false;
+  let html='';
+  CUSTOMERS.forEach(cust=>{
+    const codes = customerRowsForAccordion(cust);
+    const totalO = customerTotalOrdered(cust), totalP = customerTotalProduced(cust);
+    const isComplete = totalO>0 && totalP>=totalO;
+    if(filterIncomplete && (isComplete || totalO<=0)) return;
+    const custObj = MASTER.customers.find(c=>c.name===cust);
+    const tag = custObj && custObj.type==='internal' ? '<span class="tag-internal">โอนเครือ</span>' : '';
+    const delTime = SETTINGS.deliveryTimes[cust]||'18:00';
+    const isEditing = editingOrderCustomers.has(cust);
+    let rows='';
+    codes.forEach(code=>{
+      const orow = DAY.orders[code];
+      const ordered = orow ? Number(orow.byCustomer[cust]||0) : 0;
+      if(ordered<=0 && !orow) return;
+      const produced = productProducedForCustomer(code, cust);
+      const remain = Math.max(ordered-produced,0);
+      const name = orow ? orow.name : (masterProductByCode[code]?masterProductByCode[code].name:code);
+      const status = ordered<=0 ? '<span class="badge gray">ไม่ได้สั่ง</span>' : (remain<=0 ? '<span class="badge green">ครบ</span>' : `<span class="badge red">ขาด ${fmt(remain)}</span>`);
+      const qtyCell = isEditing
+        ? `<input type="number" min="0" data-code="${code}" data-cust="${cust}" data-orig="${ordered}" data-name="${name}" class="orderQtyInput" value="${ordered}" style="width:90px">`
+        : fmt(ordered);
+      rows += `<tr>
+        <td>${name}</td>
+        <td>${qtyCell}</td>
+        <td>${fmt(produced)}</td>
+        <td>${fmt(remain)}</td>
+        <td>${status}</td>
+      </tr>`;
+    });
+    const actionBtn = isEditing
+      ? `<button type="button" class="btn small" data-save-cust="${cust}">&#128190; บันทึก</button>`
+      : `<button type="button" class="btn small secondary" data-edit-cust="${cust}">&#9998; แก้ไข</button>`;
+    html += `<div class="acc-item${isEditing?' open':''}">
+      <div class="acc-head" data-toggle>
+        <span>${cust} ${tag} <span class="badge gray" style="margin-left:6px;">ส่ง ${delTime} น.</span></span>
+        <span>${fmt(totalP)} / ${fmt(totalO)} ฟอง &nbsp; <b style="color:${pctColor(pct(totalP,totalO))}">${totalO>0?pct(totalP,totalO).toFixed(0)+'%':'-'}</b></span>
+        ${actionBtn}
+      </div>
+      <div class="acc-body"><div class="tblwrap"><table><thead><tr><th>สินค้า</th><th>ออเดอร์(ฟอง)</th><th>ผลิตได้(ฟอง)</th><th>คงเหลือ(ฟอง)</th><th>สถานะ</th></tr></thead><tbody>${rows||'<tr><td colspan=5 style="color:var(--gray)">ไม่มีรายการสินค้า</td></tr>'}</tbody></table></div></div>
+    </div>`;
+  });
+  el.innerHTML = html || '<div class="smallnote">ไม่มีลูกค้าที่ตรงกับเงื่อนไข</div>';
+  el.querySelectorAll('[data-toggle]').forEach(h=>h.addEventListener('click', (e)=>{
+    if(e.target.closest('[data-edit-cust],[data-save-cust]')) return;
+    h.parentElement.classList.toggle('open');
+  }));
+  el.querySelectorAll('[data-edit-cust]').forEach(btn=>btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    editingOrderCustomers.add(btn.getAttribute('data-edit-cust'));
+    renderOrderEditAccordion();
+  }));
+  el.querySelectorAll('[data-save-cust]').forEach(btn=>btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    openOrderEditConfirmForCustomer(btn.getAttribute('data-save-cust'));
+  }));
+}
+
+// ---------- Order edit confirm modal (บันทึก / ไม่บันทึก) ----------
+let pendingOrderEdit = null;
+function openOrderEditConfirmForCustomer(cust){
+  const inputs = [...document.querySelectorAll('#orderEditAccordion .orderQtyInput')].filter(inp=>inp.getAttribute('data-cust')===cust);
+  const changes = [];
+  inputs.forEach(inp=>{
+    const oldVal = Number(inp.getAttribute('data-orig')||0);
+    const newVal = Number(inp.value)||0;
+    if(newVal!==oldVal){
+      changes.push({code:inp.getAttribute('data-code'), name:inp.getAttribute('data-name'), oldVal, newVal});
+    }
+  });
+  pendingOrderEdit = {cust, changes};
+  const bodyText = changes.length
+    ? changes.map(c=>'สินค้า: <b>'+c.name+'</b> &mdash; เดิม <b>'+fmt(c.oldVal)+'</b> ฟอง &rarr; ใหม่ <b>'+fmt(c.newVal)+'</b> ฟอง').join('<br>')
+    : 'ไม่มีการเปลี่ยนแปลงจำนวนออเดอร์';
+  document.getElementById('orderEditConfirmText').innerHTML =
+    'ลูกค้า: <b>'+cust+'</b><br><br>'+bodyText+'<br><br>ต้องการบันทึกการแก้ไขนี้หรือไม่?';
+  document.getElementById('orderEditConfirmModal').style.display='flex';
+}
+function closeOrderEditConfirm(){
+  document.getElementById('orderEditConfirmModal').style.display='none';
+}
+document.getElementById('btnOrderEditSave').addEventListener('click', ()=>{
+  if(!pendingOrderEdit) return;
+  const {cust, changes} = pendingOrderEdit;
+  changes.forEach(c=>{
+    ensureOrderProduct(c.code, c.name);
+    DAY.orders[c.code].byCustomer[cust] = c.newVal;
+  });
+  saveDay(currentDate, DAY);
+  editingOrderCustomers.delete(cust);
+  pendingOrderEdit = null;
+  closeOrderEditConfirm();
+  renderAll();
+});
+document.getElementById('btnOrderEditCancel').addEventListener('click', ()=>{
+  if(pendingOrderEdit){
+    editingOrderCustomers.delete(pendingOrderEdit.cust);
+  }
+  pendingOrderEdit = null;
+  closeOrderEditConfirm();
+  renderOrderEditAccordion();
+});
+
+function renderStationAccordion(){
+  const el = document.getElementById('stationAccordion');
+  let html='';
+  STATIONS.forEach(st=>{
+    const breakdown = stationProductBreakdown(st);
+    const total = stationTotalQty(st);
+    let rows='';
+    Object.entries(breakdown).forEach(([code,info])=>{
+      const totalOrderedForProduct = productTotalOrdered(code);
+      const p = pct(info.qty, totalOrderedForProduct);
+      rows += `<tr><td>${info.name}</td><td>${fmt(info.qty)}</td><td>${p.toFixed(1)}%</td></tr>`;
+    });
+    html += `<div class="acc-item">
+      <div class="acc-head" data-toggle><span>${st}</span><span>${fmt(total)} ฟอง</span></div>
+      <div class="acc-body"><div class="tblwrap"><table><thead><tr><th>สินค้า</th><th>ผลิตได้ (ฟอง)</th><th>% เทียบออเดอร์ทั้งหมดในวัน</th></tr></thead><tbody>${rows||'<tr><td colspan=3 style="color:var(--gray)">ยังไม่มียอดผลิต</td></tr>'}</tbody></table></div></div>
+    </div>`;
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('[data-toggle]').forEach(h=>h.addEventListener('click', ()=>h.parentElement.classList.toggle('open')));
+}
+
+function renderProdLog(){
+  const el = document.getElementById('prodLogBody');
+  const rowsWithIdx = DAY.production.map((e,idx)=>({e,idx})).slice().reverse();
+  el.innerHTML = rowsWithIdx.map(({e,idx})=>`<tr>
+    <td>${e.time}</td><td>${e.station}</td><td>${e.code}</td><td>${e.name}</td><td>${e.customer||'-'}</td><td>${fmt(e.qty)}</td>
+    <td><button class="del-text" data-idx="${idx}">ลบ</button></td>
+  </tr>`).join('') || '<tr><td colspan=7 style="color:var(--gray)">ยังไม่มีข้อมูล</td></tr>';
+  el.querySelectorAll('button[data-idx]').forEach(b=>b.addEventListener('click', (e)=>{
+    const idx = Number(e.target.getAttribute('data-idx'));
+    const item = DAY.production[idx];
+    const label = item ? (item.name+' / '+(item.customer||'-')+' / '+fmt(item.qty)+' ฟอง') : '';
+    if(!confirm('ยืนยันการลบข้อมูลรายการนี้?\n' + label)) return;
+    if(item && item._id){ DAY._deleted = (DAY._deleted||[]); if(DAY._deleted.indexOf(item._id)<0) DAY._deleted.push(item._id); }
+    DAY.production.splice(idx,1);
+    saveDay(currentDate, DAY);
+    renderAll();
+  }));
+}
+
+let selectedCustomer = null;
+function selectCustomer(c){
+  selectedCustomer = c;
+  document.querySelectorAll('#customerPills button').forEach(b=>b.classList.toggle('active', b.textContent===c));
+  renderCustomerDetail();
+}
+function renderCustomerPills(){
+  const el = document.getElementById('customerPills');
+  el.innerHTML = `<button class="${!selectedCustomer?'active':''}" data-all>ทั้งหมด (22 ราย)</button>` + CUSTOMERS.map(c=>`<button class="${selectedCustomer===c?'active':''}">${c}</button>`).join('');
+  el.querySelector('[data-all]').addEventListener('click', ()=>{ selectedCustomer=null; renderPage4(); });
+  el.querySelectorAll('button:not([data-all])').forEach(b=>b.addEventListener('click', ()=>selectCustomer(b.textContent)));
+}
+function renderCustomerCards(){
+  const el = document.getElementById('customerCards');
+  if(selectedCustomer){ el.innerHTML=''; return; }
+  el.innerHTML = CUSTOMERS.map(c=>{
+    const o=customerTotalOrdered(c), p=customerTotalProduced(c);
+    const pc = pct(p,o);
+    const custObj = MASTER.customers.find(x=>x.name===c);
+    const tag = custObj && custObj.type==='internal' ? '<span class="tag-internal">โอนเครือ</span>' : '';
+    return `<div class="card" style="margin-bottom:0;cursor:pointer;" data-cust="${c}">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;">${c}${tag}</div>
+      <div class="progress"><div style="width:${Math.min(pc,100)}%;background:${pctColor(pc)}"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;">
+        <span>${fmt(p)} / ${fmt(o)} ฟอง</span><b style="color:${pctColor(pc)}">${o>0?pc.toFixed(0)+'%':'-'}</b>
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-cust]').forEach(card=>card.addEventListener('click', ()=>selectCustomer(card.getAttribute('data-cust'))));
+}
+function renderCustomerDetail(){
+  const card = document.getElementById('customerDetailCard');
+  if(!selectedCustomer){ card.style.display='none'; return; }
+  card.style.display='block';
+  document.getElementById('customerDetailTitle').textContent = 'รายละเอียด: '+selectedCustomer;
+  const codes = customerRowsForAccordion(selectedCustomer);
+  const body = document.getElementById('customerDetailBody');
+  let rows='';
+  codes.forEach(code=>{
+    const orow = DAY.orders[code];
+    const ordered = orow?Number(orow.byCustomer[selectedCustomer]||0):0;
+    const produced = productProducedForCustomer(code, selectedCustomer);
+    const remain = Math.max(ordered-produced,0);
+    const name = orow?orow.name:(masterProductByCode[code]?masterProductByCode[code].name:code);
+    const p = pct(produced, ordered);
+    const status = ordered<=0?'<span class="badge gray">ไม่ได้สั่ง</span>':(remain<=0?'<span class="badge green">ครบ</span>':'<span class="badge red">ขาด</span>');
+    rows += `<tr><td>${name}</td><td>${fmt(ordered)}</td><td>${fmt(produced)}</td><td>${fmt(remain)}</td><td>${ordered>0?p.toFixed(0)+'%':'-'}</td><td>${status}</td></tr>`;
+  });
+  body.innerHTML = rows || '<tr><td colspan=6 style="color:var(--gray)">ไม่มีรายการ</td></tr>';
+}
+function renderPage4(){ renderCustomerPills(); renderCustomerCards(); renderCustomerDetail(); }
+
+function renderAll(){
+  document.getElementById('dateLabel').textContent = 'ข้อมูลวันที่ ' + new Date(currentDate).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  renderPage1();
+  renderPctBarChart();
+  renderOrderAccordion();
+  renderOrderEditAccordion();
+  renderStationAccordion();
+  renderProdLog();
+  renderPage4();
+  updateLastUpdatedLabel();
+}
+function updateLastUpdatedLabel(){
+  const el = document.getElementById('lastUpdatedLabel');
+  if(!el) return;
+  const d = new Date();
+  const pad = n=>String(n).padStart(2,'0');
+  el.textContent = pad(d.getMonth()+1)+'/'+pad(d.getDate())+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+}
+function startLiveClock(){
+  const el = document.getElementById('liveClock');
+  const mTimeEl = document.getElementById('mTime');
+  function tick(){
+    const d = new Date();
+    const pad = n=>String(n).padStart(2,'0');
+    if(el) el.textContent = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+    if(mTimeEl) mTimeEl.value = pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+document.getElementById('btnRefreshAll').addEventListener('click', ()=>{ if(IS_REMOTE()) pullDay(currentDate); renderAll(); });
+
+// ---------- Tabs ----------
+function switchPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.id===id));
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.getAttribute('data-page')===id));
+}
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click', ()=>switchPage(b.getAttribute('data-page'))));
+
+document.getElementById('onlyIncomplete').addEventListener('change', ()=>{ renderOrderAccordion(); renderOrderEditAccordion(); });
+
+// ---------- Date picker ----------
+const datePicker = document.getElementById('datePicker');
+datePicker.value = currentDate;
+datePicker.addEventListener('change', ()=>{
+  currentDate = datePicker.value;
+  DAY = loadDay(currentDate);
+  if(Object.keys(DAY.orders).length===0) seedOrdersFromMaster();
+  renderAll();
+  pullDay(currentDate);
+});
+
+document.getElementById('btnReset').addEventListener('click', ()=>{
+  if(!confirm('ล้างข้อมูลออเดอร์และยอดผลิตของวันที่ '+currentDate+' ทั้งหมด?')) return;
+  DAY = emptyDay();
+  seedOrdersFromMaster();
+  saveDay(currentDate, DAY);
+  renderAll();
+});
+
+// ---------- Page 5: settings (delivery time / standard) ----------
+function populatePage5(){
+  const dEl = document.getElementById('deliveryTimeInputs');
+  dEl.innerHTML = CUSTOMERS.map(c=>`<tr><td>${c}</td><td><input type="time" class="delInputP5" data-cust="${c}" value="${SETTINGS.deliveryTimes[c]}"></td></tr>`).join('');
+  const sEl = document.getElementById('standardInputsP5');
+  sEl.innerHTML = STATIONS.map(st=>`<tr><td>${st}</td><td><input type="number" min="0" class="stdInputP5" data-station="${st}" value="${SETTINGS.standards[st]}"></td></tr>`).join('');
+  document.getElementById('shiftStartInputP5').value = SETTINGS.shiftStart;
+}
+document.getElementById('btnSaveSettingsP5').addEventListener('click', ()=>{
+  const standards = {...SETTINGS.standards};
+  document.querySelectorAll('.stdInputP5').forEach(i=>standards[i.getAttribute('data-station')] = Number(i.value)||10000);
+  const deliveryTimes = {...SETTINGS.deliveryTimes};
+  document.querySelectorAll('.delInputP5').forEach(i=>deliveryTimes[i.getAttribute('data-cust')] = i.value||'18:00');
+  const shiftStart = document.getElementById('shiftStartInputP5').value || SETTINGS.shiftStart;
+  SETTINGS = {...SETTINGS, standards, deliveryTimes, shiftStart};
+  saveSettings(SETTINGS);
+  renderAll();
+  document.getElementById('settingsSavedInfo').textContent = 'บันทึกแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH');
+});
+
+// ---------- Page 2: % bar chart vs order ----------
+function pctIcon(p){ if(p>=100) return '\ud83d\ude03'; if(p>=70) return '\ud83d\ude42'; if(p>=40) return '\ud83d\ude10'; return '\ud83d\ude1f'; }
+function renderPctBarChart(){
+  const el = document.getElementById('pctBarChart');
+  if(!el) return;
+  const rows = CUSTOMERS.map(c=>({c, o:customerTotalOrdered(c), p:customerTotalProduced(c)}))
+    .filter(r=>r.o>0)
+    .map(r=>({...r, pc:pct(r.p,r.o)}))
+    .sort((a,b)=>a.pc-b.pc);
+  const noOrderCount = CUSTOMERS.length - rows.length;
+  el.innerHTML = rows.map(r=>{
+    const confirmed = !!(DAY.confirmed && DAY.confirmed[r.c]);
+    const statusBadge = confirmed
+      ? '<span class="badge green">&#10003; จบงาน</span>'
+      : '<span class="badge amber">กำลังทำ</span>';
+    return `
+    <div class="brow">
+      <div class="icon">${pctIcon(r.pc)}</div>
+      <div class="lbl">${r.c}</div>
+      <div class="btrack"><div class="bfill" style="width:${Math.min(r.pc,100)}%;background:${pctColor(r.pc)}"></div></div>
+      <div class="bpct" style="color:${pctColor(r.pc)}">${r.pc.toFixed(0)}%</div>
+      <div style="text-align:center;">${statusBadge}</div>
+    </div>`;
+  }).join('') + (rows.length===0 ? '<div class="smallnote">ยังไม่มีออเดอร์วันนี้</div>' : '') + (noOrderCount>0 ? `<div class="smallnote">ไม่แสดง ${noOrderCount} ลูกค้าที่ยังไม่มีออเดอร์วันนี้ในกราฟนี้</div>` : '');
+}
+
+/* =========================================================================
+   SYSTEM PANEL (แทรกเข้าหน้า 5) — ตั้งค่า backend / backup / restore
+   ========================================================================= */
+function injectSystemPanel(){
+  const p5 = document.getElementById('p5');
+  if(!p5) return;
+  p5.insertAdjacentHTML('beforeend', `
+  <div class="card sysCard">
+    <div class="panel-head">&#9881; ตั้งค่าระบบ &amp; การเชื่อมต่อข้อมูลกลาง</div>
+    <div style="padding:14px 16px">
+      <div class="row">
+        <label>รูปแบบการเก็บข้อมูล</label>
+        <select id="beMode">
+          <option value="local">เครื่องเดียว (localStorage)</option>
+          <option value="sharepoint">SharePoint List (M365)</option>
+          <option value="api">REST API กลาง</option>
+        </select>
+      </div>
+      <div class="row beSp">
+        <label>SharePoint Site URL</label>
+        <input type="text" id="beSite" placeholder="https://cpgroup.sharepoint.com/sites/BannaEgg">
+      </div>
+      <div class="row beSp">
+        <label>ชื่อ List ข้อมูลรายวัน</label>
+        <input type="text" id="beDayList" placeholder="EggDayData">
+      </div>
+      <div class="row beSp">
+        <label>ชื่อ List ค่าตั้งต้น</label>
+        <input type="text" id="beCfgList" placeholder="EggConfig">
+      </div>
+      <div class="hint beSp">ต้อง host ไฟล์ HTML นี้ไว้ในไซต์เดียวกัน (Document Library) จึงจะเชื่อมต่อได้ — ดูคู่มือติดตั้ง</div>
+      <div class="row beApi">
+        <label>API Base URL</label>
+        <input type="text" id="beApiBase" placeholder="https://intranet.cpf.co.th/eggapi">
+      </div>
+      <div class="row">
+        <label>ดึงข้อมูลใหม่ทุก (วินาที)</label>
+        <input type="number" id="bePoll" min="10" max="600" style="width:100px">
+      </div>
+      <div class="row">
+        <button class="btn primary small" id="btnSaveBackend">บันทึกการเชื่อมต่อ</button>
+        <button class="btn secondary small" id="btnTestBackend">ทดสอบการเชื่อมต่อ</button>
+        <button class="btn secondary small" id="btnPullNow">ดึงข้อมูลจากส่วนกลางเดี๋ยวนี้</button>
+        <span id="beInfo" style="font-size:12px;color:#666"></span>
+      </div>
+      <hr style="margin:16px 0;border:none;border-top:1px solid #e3e3e3">
+      <div class="row">
+        <label>สำรอง / กู้คืนข้อมูล</label>
+        <button class="btn secondary small" id="btnBackupAll">ดาวน์โหลดข้อมูลทั้งหมด (.json)</button>
+        <button class="btn secondary small" id="btnRestoreAll">กู้คืนจากไฟล์ .json</button>
+        <input type="file" id="fileRestore" accept=".json" style="display:none">
+      </div>
+      <div class="hint">แนะนำ: กดสำรองข้อมูลทุกสิ้นวัน แล้วเก็บไฟล์ไว้ใน OneDrive</div>
+      <hr style="margin:16px 0;border:none;border-top:1px solid #e3e3e3">
+      <div class="row">
+        <label>ลิงก์สำหรับจอไลน์ผลิต</label>
+        <input type="text" id="kioskUrl" readonly>
+        <button class="btn secondary small" id="btnCopyKiosk">คัดลอกลิงก์</button>
+      </div>
+      <div class="hint">เปิดลิงก์นี้บนจอ TV — จะเป็นโหมดอ่านเท่านั้น สลับหน้าและรีเฟรชเอง</div>
+    </div>
+  </div>`);
+
+  const $ = id=>document.getElementById(id);
+  function paint(){
+    $('beMode').value = BE.mode; $('beSite').value = BE.siteUrl||'';
+    $('beDayList').value = BE.dayList||''; $('beCfgList').value = BE.settingsList||'';
+    $('beApiBase').value = BE.apiBase||''; $('bePoll').value = BE.pollSec||30;
+    document.querySelectorAll('.beSp').forEach(e=>e.style.display = BE.mode==='sharepoint'?'':'none');
+    document.querySelectorAll('.beApi').forEach(e=>e.style.display = BE.mode==='api'?'':'none');
+    $('kioskUrl').value = location.origin + location.pathname + '?mode=display&rotate=25';
+  }
+  $('beMode').addEventListener('change', ()=>{ BE.mode = $('beMode').value; paint(); });
+  $('btnSaveBackend').addEventListener('click', ()=>{
+    saveBackend({mode:$('beMode').value, siteUrl:$('beSite').value.trim(), dayList:$('beDayList').value.trim()||'EggDayData',
+      settingsList:$('beCfgList').value.trim()||'EggConfig', apiBase:$('beApiBase').value.trim(), pollSec:Number($('bePoll').value)||30});
+    $('beInfo').textContent = 'บันทึกแล้ว — กำลังโหลดหน้าใหม่...';
+    setTimeout(()=>location.reload(), 600);
+  });
+  $('btnTestBackend').addEventListener('click', async ()=>{
+    $('beInfo').textContent = 'กำลังทดสอบ...';
+    if(!IS_REMOTE()){ $('beInfo').textContent = 'โหมดเครื่องเดียว — ไม่ต้องเชื่อมต่อ'; return; }
+    try{ await Remote.ping(); $('beInfo').textContent = '✓ เชื่อมต่อสำเร็จ'; setSync('ok'); }
+    catch(e){ $('beInfo').textContent = '✖ ไม่สำเร็จ: '+(e.message||e); setSync('err', String(e.message||e)); }
+  });
+  $('btnPullNow').addEventListener('click', ()=>pullDay(currentDate));
+  $('btnCopyKiosk').addEventListener('click', ()=>{
+    $('kioskUrl').select(); try{ document.execCommand('copy'); $('beInfo').textContent='คัดลอกลิงก์แล้ว'; }catch(e){}
+  });
+
+  /* ---- Backup / Restore ---- */
+  $('btnBackupAll').addEventListener('click', ()=>{
+    const dump = {_app:'egg-dashboard-banna', _version:1, exportedAt:new Date().toISOString(), settings:SETTINGS, backend:BE, days:{}};
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf('egg_day_')===0){ try{ dump.days[k.slice(8)] = JSON.parse(localStorage.getItem(k)); }catch(e){} }
+    }
+    const blob = new Blob([JSON.stringify(dump,null,1)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Backup_Dashboard_ไข่ไก่_'+new Date().toISOString().slice(0,10)+'.json';
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  $('btnRestoreAll').addEventListener('click', ()=>$('fileRestore').click());
+  $('fileRestore').addEventListener('change', (ev)=>{
+    const f = ev.target.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = e=>{
+      try{
+        const d = JSON.parse(e.target.result);
+        if(d._app!=='egg-dashboard-banna') throw new Error('ไม่ใช่ไฟล์สำรองของ Dashboard นี้');
+        const n = Object.keys(d.days||{}).length;
+        if(!confirm('กู้คืนข้อมูล '+n+' วัน? ข้อมูลวันเดียวกันในเครื่องจะถูกรวมเข้าด้วยกัน')) return;
+        Object.keys(d.days||{}).forEach(date=>{
+          const merged = mergeDay(loadDay(date), d.days[date]);
+          localStorage.setItem(dayKey(date), JSON.stringify(merged));
+        });
+        if(d.settings) saveSettings(Object.assign({}, SETTINGS, d.settings));
+        alert('กู้คืนสำเร็จ '+n+' วัน');
+        location.reload();
+      }catch(err){ alert('กู้คืนไม่สำเร็จ: '+(err.message||err)); }
+      ev.target.value = '';
+    };
+    rd.readAsText(f);
+  });
+  paint();
+}
+
+/* =========================================================================
+   DISPLAY / KIOSK MODE
+   ========================================================================= */
+function initDisplayMode(){
+  document.body.classList.add('display-mode');
+  const pages = ['p1','p2','p3','p4'];
+  let i = 0;
+  if(ROTATE_SEC > 0){
+    setInterval(()=>{ i = (i+1)%pages.length; switchPage(pages[i]); }, ROTATE_SEC*1000);
+  }
+  // ป้องกันการแก้ข้อมูลโดยไม่ตั้งใจ
+  document.addEventListener('submit', e=>e.preventDefault(), true);
+  // ขึ้นวันใหม่อัตโนมัติเวลาเที่ยงคืน
+  setInterval(()=>{
+    const today = new Date().toISOString().slice(0,10);
+    if(!QS.get('date') && today!==currentDate){
+      currentDate = today;
+      DAY = loadDay(currentDate);
+      if(Object.keys(DAY.orders).length===0) seedOrdersFromMaster();
+      const dp = document.getElementById('datePicker'); if(dp) dp.value = currentDate;
+      pullDay(currentDate, true); renderAll();
+    }
+  }, 60*1000);
+}
+
+// ---------- init ----------
+if(Object.keys(DAY.orders).length===0) seedOrdersFromMaster();
+populateSelects();
+populatePage5();
+injectSystemPanel();
+startLiveClock();
+renderAll();
+
+/* sync pill */
+document.body.insertAdjacentHTML('beforeend', '<div id="syncPill"></div>');
+document.getElementById('syncPill').addEventListener('click', ()=>{
+  if(IS_REMOTE()){ flushPending(); pullDay(currentDate); }
+  else switchPage('p5');
+});
+setSync(IS_REMOTE() ? 'busy' : 'local');
+
+/* first pull + polling */
+if(IS_REMOTE()){
+  pullSettings();
+  pullDay(currentDate);
+  flushPending();
+  setInterval(()=>{ pullDay(currentDate, true); flushPending(); }, Math.max(10, Number(BE.pollSec)||30)*1000);
+}else if(DISPLAY_MODE){
+  // โหมดจอ + เก็บในเครื่อง: อ่านค่าที่แท็บอื่นบันทึกไว้
+  setInterval(()=>{ DAY = loadDay(currentDate); renderAll(); }, 20000);
+  window.addEventListener('storage', ()=>{ DAY = loadDay(currentDate); renderAll(); });
+}
+
+if(ZOOM > 0) document.body.style.zoom = ZOOM;
+if(DISPLAY_MODE) initDisplayMode();
+</script>
+<script>
+/* =========================================================================
+   HISTORY ARCHIVE — จัดเก็บข้อมูลย้อนหลัง
+   - เก็บข้อมูลทุกวันลง IndexedDB (พื้นที่ใหญ่กว่า localStorage มาก) อัตโนมัติ
+   - localStorage เก็บไว้เฉพาะ N วันล่าสุด (ค่าเริ่มต้น 45 วัน) กันพื้นที่เต็ม
+   - เลือกวันที่เก่าใน datePicker → ดึงจากคลังย้อนหลังมาแสดงให้อัตโนมัติ
+   - หน้า 8: สรุปรายวัน / แนวโน้ม / รายลูกค้า / รายจุดงาน / Export / Backup
+   ========================================================================= */
+const HIST = (function(){
+  const DB_NAME = 'EggDashboardHistory', STORE = 'days', CFG_KEY = 'egg_hist_cfg_v1';
+  let dbp = null, idbOK = !!window.indexedDB;
+
+  function cfg(){
+    try{ return Object.assign({keepLocalDays:45}, JSON.parse(localStorage.getItem(CFG_KEY)||'{}')); }
+    catch(e){ return {keepLocalDays:45}; }
+  }
+  function setCfg(c){ localStorage.setItem(CFG_KEY, JSON.stringify(Object.assign(cfg(), c))); }
+
+  function db(){
+    if(dbp) return dbp;
+    dbp = new Promise((res, rej)=>{
+      if(!idbOK) return rej(new Error('IndexedDB not supported'));
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = ()=>{ const d = r.result; if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, {keyPath:'date'}); };
+      r.onsuccess = ()=>res(r.result);
+      r.onerror = ()=>{ idbOK = false; rej(r.error); };
+    });
+    return dbp;
+  }
+  function req(mode, fn){
+    return db().then(d=>new Promise((res, rej)=>{
+      const t = d.transaction(STORE, mode);
+      const rq = fn(t.objectStore(STORE));
+      t.oncomplete = ()=>res(rq ? rq.result : undefined);
+      t.onerror = ()=>rej(t.error);
+      t.onabort = ()=>rej(t.error);
+    }));
+  }
+
+  /* ---------- สรุปตัวเลขของ 1 วัน ---------- */
+  function hasContent(d){
+    if(!d) return false;
+    if((d.production||[]).length) return true;
+    if(d.orderImportedAt || d.prodImportedAt) return true;
+    if(Object.keys(d.confirmed||{}).length) return true;
+    return Object.values(d.orders||{}).some(r=>Object.values(r.byCustomer||{}).some(q=>Number(q||0)>0));
+  }
+  function summarize(d){
+    const custO = {}, custP = {}, stP = {}, prodRows = d.production||[];
+    Object.values(d.orders||{}).forEach(row=>{
+      Object.entries(row.byCustomer||{}).forEach(([c,q])=>{ custO[c] = (custO[c]||0) + Number(q||0); });
+    });
+    let order = 0, produced = 0, shortfall = 0, complete = 0, incomplete = 0, noOrder = 0;
+    prodRows.forEach(e=>{
+      const q = Number(e.qty||0); produced += q;
+      if(e.customer) custP[e.customer] = (custP[e.customer]||0) + q;
+      if(e.station)  stP[e.station]   = (stP[e.station]||0) + q;
+    });
+    Object.values(custO).forEach(v=>order += v);
+    const all = new Set(CUSTOMERS.concat(Object.keys(custO)));
+    all.forEach(c=>{
+      const o = custO[c]||0, p = custP[c]||0;
+      if(o<=0){ noOrder++; }
+      else if(p>=o){ complete++; }
+      else { incomplete++; shortfall += o-p; }
+    });
+    return {order, produced, pct: pct(produced, order), shortfall, complete, incomplete, noOrder,
+            entries: prodRows.length, custO, custP, stations: stP,
+            standards: Object.assign({}, SETTINGS.standards)};
+  }
+
+  /* ---------- CRUD ---------- */
+  async function get(date){ try{ return await req('readonly', s=>s.get(date)); }catch(e){ return null; } }
+  async function put(date, data){
+    const rec = {date, data, summary: summarize(data), savedAt: Date.now()};
+    try{ await req('readwrite', s=>s.put(rec)); }catch(e){ /* IndexedDB ใช้ไม่ได้ → ยังมี localStorage */ }
+    return rec;
+  }
+  async function del(date){ try{ await req('readwrite', s=>s.delete(date)); }catch(e){} }
+
+  /* อ่านช่วงวันที่ (รวมข้อมูลใน localStorage ที่ยังไม่เข้าคลังด้วย) */
+  async function range(from, to){
+    const map = {};
+    try{
+      const kr = (from && to) ? IDBKeyRange.bound(from, to) : null;
+      const rows = await req('readonly', s=>s.getAll(kr));
+      (rows||[]).forEach(r=>{ map[r.date] = r; });
+    }catch(e){}
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(!k || k.indexOf('egg_day_')!==0) continue;
+      const date = k.slice(8);
+      if(from && date<from) continue;
+      if(to && date>to) continue;
+      const d = loadDay(date);
+      if(!hasContent(d)) continue;
+      if(!map[date] || (d._ts||0) > ((map[date].data||{})._ts||0)) map[date] = {date, data:d, summary:summarize(d), savedAt:d._ts};
+    }
+    return Object.keys(map).sort().map(k=>map[k]);
+  }
+  async function count(){ try{ return await req('readonly', s=>s.count()); }catch(e){ return 0; } }
+
+  /* ---------- เก็บข้อมูลจาก localStorage เข้าคลัง ---------- */
+  async function archive(date){
+    const raw = localStorage.getItem(dayKey(date));
+    if(raw===null) return;
+    const d = loadDay(date);
+    if(hasContent(d)) return put(date, d);
+    if((d._ts||0) > 0) return del(date);       // กด "ล้างข้อมูลวันนี้" → ลบในคลังด้วย
+  }
+  const timers = {};
+  function archiveSoon(date){
+    clearTimeout(timers[date]);
+    timers[date] = setTimeout(()=>{ archive(date).then(()=>{ if(document.getElementById('p8').classList.contains('active')) renderHistory(); }); }, 1200);
+  }
+
+  /* ย้ายข้อมูลทั้งหมดใน localStorage เข้าคลัง + เคลียร์วันเก่าออกจาก localStorage */
+  async function migrateAndPrune(){
+    if(!idbOK) return;
+    const keep = Math.max(7, Number(cfg().keepLocalDays)||45);
+    const cutoff = addDays(todayStr(), -keep);
+    const pending = loadPending();
+    const dates = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf('egg_day_')===0) dates.push(k.slice(8));
+    }
+    for(const date of dates){
+      try{
+        await archive(date);
+        if(date < cutoff && date !== currentDate && !pending[date]){
+          const rec = await get(date);
+          const d = loadDay(date);
+          if(!hasContent(d) || (rec && (rec.data._ts||0) >= (d._ts||0))) localStorage.removeItem(dayKey(date));
+        }
+      }catch(e){}
+    }
+  }
+
+  /* ถ้าวันที่เลือกไม่มีใน localStorage → ดึงจากคลังมาใส่ */
+  async function hydrate(date){
+    if(localStorage.getItem(dayKey(date))!==null) return false;
+    const rec = await get(date);
+    if(!rec || !rec.data) return false;
+    try{ localStorage.setItem(dayKey(date), JSON.stringify(rec.data)); }catch(e){}
+    if(date===currentDate){
+      DAY = loadDay(date); if(!hasContent(DAY) && rec.data) DAY = rec.data;
+      if(Object.keys(DAY.orders).length===0) seedOrdersFromMaster();
+      renderAll();
+    }
+    return true;
+  }
+
+  return {cfg, setCfg, get, put, del, range, count, archive, archiveSoon, migrateAndPrune, hydrate, summarize, hasContent, idbOK:()=>idbOK};
+})();
+
+/* ---------- date helpers (ใช้เวลาท้องถิ่น) ---------- */
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function addDays(s, n){ const d=new Date(s+'T00:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function thDate(s, opt){ return new Date(s+'T00:00:00').toLocaleDateString('th-TH', opt||{day:'numeric',month:'short',year:'2-digit'}); }
+function dateList(from, to){ const out=[]; let d=from; while(d<=to && out.length<1000){ out.push(d); d=addDays(d,1); } return out; }
+
+/* ---------- เชื่อมกับระบบเดิม: ทุกครั้งที่บันทึก/ดึงข้อมูล → เก็บเข้าคลัง ---------- */
+(function hookArchive(){
+  const _saveDay = saveDay;
+  saveDay = function(dateStr, data){ _saveDay(dateStr, data); HIST.archiveSoon(dateStr); };
+  const _pullDay = pullDay;
+  pullDay = async function(dateStr, silent){ await _pullDay(dateStr, silent); HIST.archiveSoon(dateStr); };
+  const _flush = flushPending;
+  flushPending = async function(){ await _flush(); HIST.archiveSoon(currentDate); };
+
+  document.getElementById('datePicker').addEventListener('change', ()=>{ HIST.hydrate(currentDate); });
+  // เผื่อมีการเขียน localStorage จากแท็บอื่น / merge จาก server
+  setInterval(()=>HIST.archive(currentDate), 60*1000);
+  window.addEventListener('beforeunload', ()=>{ HIST.archive(currentDate); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) HIST.archive(currentDate); });
+})();
+
+/* =========================================================================
+   PAGE 8 RENDER
+   ========================================================================= */
+let HIST_FROM = addDays(todayStr(), -29), HIST_TO = todayStr(), HIST_ROWS = [];
+
+function hbadge(p, hasOrder){
+  if(!hasOrder) return '<span class="hbadge" style="background:#eceeed;color:#666">-</span>';
+  const c = p>=100 ? 'g' : (p>=80 ? 'o' : 'r');
+  return `<span class="hbadge ${c}">${p.toFixed(1)}%</span>`;
+}
+
+async function renderHistory(){
+  const st = document.getElementById('histStatus');
+  st.textContent = 'กำลังโหลด...';
+  await HIST.archive(currentDate);
+  const rows = await HIST.range(HIST_FROM, HIST_TO);
+  HIST_ROWS = rows;
+  document.getElementById('histFrom').value = HIST_FROM || '';
+  document.getElementById('histTo').value = HIST_TO || '';
+  st.textContent = 'ช่วง ' + (HIST_FROM? thDate(HIST_FROM):'เริ่มต้น') + ' – ' + (HIST_TO? thDate(HIST_TO):'ล่าสุด') + ' · มีข้อมูล ' + rows.length + ' วัน';
+  renderHistKpis(rows); renderHistChart(rows); renderHistDaily(rows); renderHistCustomers(rows); renderHistStations(rows); renderHistStorage();
+}
+
+function renderHistKpis(rows){
+  const el = document.getElementById('histKpis');
+  let o=0, p=0, sf=0; rows.forEach(r=>{ o+=r.summary.order; p+=r.summary.produced; sf+=r.summary.shortfall; });
+  const withOrder = rows.filter(r=>r.summary.order>0);
+  const best = withOrder.slice().sort((a,b)=>b.summary.pct-a.summary.pct)[0];
+  const worst = withOrder.slice().sort((a,b)=>a.summary.pct-b.summary.pct)[0];
+  const daysHit = withOrder.filter(r=>r.summary.pct>=100).length;
+  const tot = pct(p,o);
+  el.innerHTML = `
+    <div class="card"><div class="label">จำนวนวันที่มีข้อมูล</div><div class="value">${rows.length} <span style="font-size:14px">วัน</span></div><div class="sub">ทำได้ครบ 100% ${daysHit}/${withOrder.length} วัน</div></div>
+    <div class="card"><div class="label">ยอดออเดอร์รวม</div><div class="value">${fmt(o)}</div><div class="sub">เฉลี่ย ${fmt(withOrder.length? o/withOrder.length : 0)} ฟอง/วัน</div></div>
+    <div class="card"><div class="label">ยอดผลิตรวม</div><div class="value">${fmt(p)}</div><div class="sub">เฉลี่ย ${fmt(rows.length? p/rows.length : 0)} ฟอง/วัน</div></div>
+    <div class="card"><div class="label">% สำเร็จรวมทั้งช่วง</div><div class="value" style="color:${pctColor(tot)}">${tot.toFixed(1)}%</div><div class="sub">ยอดขาดส่งรวม ${fmt(sf)} ฟอง</div></div>
+    <div class="card"><div class="label">วันที่ดีที่สุด / ต่ำสุด</div>
+      <div class="sub" style="font-size:13px;margin-top:8px">&#9650; ${best? thDate(best.date)+' · '+best.summary.pct.toFixed(1)+'%' : '-'}</div>
+      <div class="sub" style="font-size:13px">&#9660; ${worst? thDate(worst.date)+' · '+worst.summary.pct.toFixed(1)+'%' : '-'}</div></div>`;
+}
+
+function renderHistChart(rows){
+  const el = document.getElementById('histChart');
+  if(!rows.length){ el.innerHTML = '<div class="smallnote" style="padding:20px">ยังไม่มีข้อมูลในช่วงนี้</div>'; return; }
+  const n = rows.length, slot = Math.max(26, Math.min(60, Math.floor(1000/n)));
+  const L = 64, R = 48, T = 16, B = 46, H = 280, W = L + R + slot*n;
+  const ih = H - T - B;
+  const maxV = Math.max(1, ...rows.map(r=>Math.max(r.summary.order, r.summary.produced)));
+  const step = Math.pow(10, Math.floor(Math.log10(maxV))) ; const niceMax = Math.ceil(maxV/step)*step;
+  const maxP = Math.max(120, Math.ceil(Math.max(...rows.map(r=>r.summary.pct))/20)*20);
+  const y = v=> T + ih - (v/niceMax)*ih, yp = v=> T + ih - (Math.min(v,maxP)/maxP)*ih;
+  let g = '';
+  for(let i=0;i<=5;i++){
+    const v = niceMax/5*i, yy = y(v);
+    g += `<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="#eef1ef"/>`;
+    g += `<text x="${L-6}" y="${yy+4}" text-anchor="end" font-size="11" fill="#6b7280">${fmt(v)}</text>`;
+    const pv = maxP/5*i;
+    g += `<text x="${W-R+6}" y="${yp(pv)+4}" font-size="11" fill="#c24f00">${Math.round(pv)}%</text>`;
+  }
+  g += `<line x1="${L}" x2="${W-R}" y1="${yp(100)}" y2="${yp(100)}" stroke="#ff6a00" stroke-dasharray="4 4" opacity=".5"/>`;
+  const bw = Math.max(6, (slot-8)/2);
+  let pts = [];
+  rows.forEach((r,i)=>{
+    const x0 = L + i*slot + (slot - bw*2 - 2)/2, s = r.summary;
+    const tip = `${thDate(r.date,{weekday:'short',day:'numeric',month:'short',year:'numeric'})}\nออเดอร์ ${fmt(s.order)} ฟอง\nผลิต ${fmt(s.produced)} ฟอง\nสำเร็จ ${s.pct.toFixed(1)}%\nขาดส่ง ${fmt(s.shortfall)} ฟอง`;
+    g += `<g class="hbar" data-date="${r.date}" style="cursor:pointer"><title>${tip}</title>
+      <rect x="${L+i*slot}" y="${T}" width="${slot}" height="${ih}" fill="transparent"/>
+      <rect x="${x0}" y="${y(s.order)}" width="${bw}" height="${T+ih-y(s.order)}" fill="#cfd8d3" rx="2"/>
+      <rect x="${x0+bw+2}" y="${y(s.produced)}" width="${bw}" height="${T+ih-y(s.produced)}" fill="#087c41" rx="2"/></g>`;
+    const cx = L + i*slot + slot/2;
+    if(s.order>0) pts.push([cx, yp(s.pct)]);
+    if(n<=45 || i%Math.ceil(n/45)===0){
+      const lab = new Date(r.date+'T00:00:00');
+      g += `<text x="${cx}" y="${H-B+16}" text-anchor="middle" font-size="11" fill="#4b5563">${lab.getDate()}/${lab.getMonth()+1}</text>`;
+    }
+  });
+  if(pts.length){
+    g += `<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#ff6a00" stroke-width="2.2"/>`;
+    g += pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="#ff6a00"/>`).join('');
+  }
+  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;font-family:inherit">${g}</svg>`;
+  el.querySelectorAll('.hbar').forEach(b=>b.addEventListener('click', ()=>openHistDay(b.getAttribute('data-date'))));
+}
+
+function renderHistDaily(rows){
+  const el = document.getElementById('histDailyTbl');
+  const head = `<thead><tr><th>วันที่</th><th>ยอดออเดอร์</th><th>ยอดผลิต</th><th>% สำเร็จ</th><th>ขาดส่ง</th><th>ลูกค้าครบ</th><th>ไม่ครบ</th><th>รายการบันทึก</th><th></th></tr></thead>`;
+  if(!rows.length){ el.innerHTML = head + '<tbody><tr><td colspan=9 style="color:var(--gray)">ไม่มีข้อมูล</td></tr></tbody>'; return; }
+  let tO=0,tP=0,tS=0;
+  const body = rows.slice().reverse().map(r=>{
+    const s=r.summary; tO+=s.order; tP+=s.produced; tS+=s.shortfall;
+    return `<tr class="clickable" data-date="${r.date}">
+      <td>${thDate(r.date,{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</td>
+      <td>${fmt(s.order)}</td><td>${fmt(s.produced)}</td><td>${hbadge(s.pct, s.order>0)}</td>
+      <td class="${s.shortfall>0?'neg':''}">${s.shortfall>0?fmt(s.shortfall):'-'}</td>
+      <td>${s.complete}</td><td>${s.incomplete}</td><td>${s.entries}</td>
+      <td><button class="btn small secondary" data-open="${r.date}">เปิดดู</button></td></tr>`;
+  }).join('');
+  const foot = `<tr style="font-weight:800;background:#f6f8f6"><td>รวม ${rows.length} วัน</td><td>${fmt(tO)}</td><td>${fmt(tP)}</td><td>${hbadge(pct(tP,tO), tO>0)}</td><td>${fmt(tS)}</td><td colspan=4></td></tr>`;
+  el.innerHTML = head + '<tbody>' + body + foot + '</tbody>';
+  el.querySelectorAll('tr.clickable').forEach(tr=>tr.addEventListener('click', ()=>openHistDay(tr.getAttribute('data-date'))));
+}
+
+function renderHistCustomers(rows){
+  const el = document.getElementById('histCustTbl');
+  const agg = {};
+  rows.forEach(r=>{
+    const s = r.summary;
+    Object.keys(Object.assign({}, s.custO, s.custP)).forEach(c=>{
+      if(!agg[c]) agg[c] = {o:0,p:0,days:0,hit:0};
+      const o = s.custO[c]||0, p = s.custP[c]||0;
+      agg[c].o += o; agg[c].p += p;
+      if(o>0){ agg[c].days++; if(p>=o) agg[c].hit++; }
+    });
+  });
+  const list = Object.entries(agg).filter(([c,a])=>a.o>0||a.p>0).sort((a,b)=>b[1].o-a[1].o);
+  const head = `<thead><tr><th>ลูกค้า</th><th>ออเดอร์รวม</th><th>ผลิตรวม</th><th>% สำเร็จ</th><th>วันที่ส่งครบ</th></tr></thead>`;
+  el.innerHTML = head + '<tbody>' + (list.map(([c,a])=>`<tr><td>${c}</td><td>${fmt(a.o)}</td><td>${fmt(a.p)}</td><td>${hbadge(pct(a.p,a.o), a.o>0)}</td><td>${a.hit}/${a.days}</td></tr>`).join('')
+    || '<tr><td colspan=5 style="color:var(--gray)">ไม่มีข้อมูล</td></tr>') + '</tbody>';
+}
+
+function renderHistStations(rows){
+  const el = document.getElementById('histStationTbl');
+  const agg = {};
+  STATIONS.forEach(s=>agg[s]={q:0,target:0,days:0});
+  rows.forEach(r=>{
+    const s = r.summary;
+    const active = Object.values(s.stations).some(v=>v>0);
+    STATIONS.forEach(st=>{
+      const q = s.stations[st]||0;
+      agg[st].q += q;
+      if(active){ agg[st].days++; agg[st].target += Number((s.standards||{})[st] || SETTINGS.standards[st] || 0); }
+    });
+  });
+  const head = `<thead><tr><th>จุดงาน</th><th>ยอดผลิตรวม</th><th>เฉลี่ย/วัน</th><th>เป้าหมายรวม</th><th>% เทียบเป้า</th></tr></thead>`;
+  el.innerHTML = head + '<tbody>' + STATIONS.map(st=>{
+    const a = agg[st];
+    return `<tr><td>${st}</td><td>${fmt(a.q)}</td><td>${fmt(a.days? a.q/a.days : 0)}</td><td>${fmt(a.target)}</td><td>${hbadge(pct(a.q,a.target), a.target>0)}</td></tr>`;
+  }).join('') + '</tbody>';
+}
+
+async function renderHistStorage(){
+  const el = document.getElementById('histStorage');
+  const n = await HIST.count();
+  let lsBytes = 0, lsDays = 0;
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); const v=localStorage.getItem(k)||''; lsBytes += (k.length+v.length)*2; if(k.indexOf('egg_day_')===0) lsDays++; }
+  let est = '';
+  try{ if(navigator.storage && navigator.storage.estimate){ const e = await navigator.storage.estimate(); est = ' · พื้นที่เบราว์เซอร์ใช้ไป '+(e.usage/1048576).toFixed(1)+' MB จาก '+(e.quota/1073741824).toFixed(1)+' GB'; } }catch(e){}
+  el.innerHTML = `<span>&#128451; คลังย้อนหลัง (IndexedDB): <b>${HIST.idbOK()? n+' วัน' : 'ใช้ไม่ได้ในเบราว์เซอร์นี้'}</b></span>
+    <span>&#128190; localStorage: <b>${lsDays} วัน</b> (${(lsBytes/1048576).toFixed(2)} MB / ~5 MB)${est}</span>
+    <span>เก็บใน localStorage ล่าสุด <input type="number" id="histKeepDays" min="7" max="365" value="${HIST.cfg().keepLocalDays}"> วัน
+      <button class="btn small secondary" id="histKeepSave">บันทึก &amp; จัดระเบียบ</button></span>`;
+  document.getElementById('histKeepSave').addEventListener('click', async ()=>{
+    HIST.setCfg({keepLocalDays: Math.max(7, Number(document.getElementById('histKeepDays').value)||45)});
+    await HIST.migrateAndPrune(); renderHistStorage();
+  });
+}
+
+/* เปิดวันที่เลือกในหน้าหลัก */
+async function openHistDay(date){
+  await HIST.hydrate(date);
+  const dp = document.getElementById('datePicker');
+  dp.value = date;
+  dp.dispatchEvent(new Event('change'));
+  switchPage('p1');
+  window.scrollTo(0,0);
+}
+
+/* ---------- Export Excel ช่วงที่เลือก ---------- */
+function exportHistXlsx(){
+  if(!xlsxReady()) return;
+  const rows = HIST_ROWS;
+  if(!rows.length){ alert('ไม่มีข้อมูลในช่วงที่เลือก'); return; }
+  const wb = XLSX.utils.book_new();
+  const daily = [['วันที่','ยอดออเดอร์','ยอดผลิต','% สำเร็จ','ขาดส่ง','ลูกค้าครบ','ลูกค้าไม่ครบ','ไม่มีออเดอร์','รายการบันทึก']];
+  rows.forEach(r=>{ const s=r.summary; daily.push([r.date, s.order, s.produced, Math.round(s.pct*10)/10, s.shortfall, s.complete, s.incomplete, s.noOrder, s.entries]); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(daily), 'สรุปรายวัน');
+
+  const cust = [['วันที่','ลูกค้า','ยอดออเดอร์','ยอดผลิต','% สำเร็จ','ขาด']];
+  rows.forEach(r=>{ const s=r.summary; Object.keys(Object.assign({}, s.custO, s.custP)).forEach(c=>{
+    const o=s.custO[c]||0, p=s.custP[c]||0; if(o||p) cust.push([r.date, c, o, p, Math.round(pct(p,o)*10)/10, Math.max(o-p,0)]); }); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cust), 'รายลูกค้า');
+
+  const sta = [['วันที่'].concat(STATIONS)];
+  rows.forEach(r=>sta.push([r.date].concat(STATIONS.map(st=>r.summary.stations[st]||0))));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sta), 'รายจุดงาน');
+
+  const log = [['วันที่','เวลา','จุดงาน','รหัสสินค้า','ชื่อสินค้า','ลูกค้า','จำนวน (ฟอง)']];
+  rows.forEach(r=>(r.data.production||[]).forEach(e=>log.push([r.date, e.time||'', e.station||'', e.code||'', e.name||(masterProductByCode[String(e.code)]||{}).name||'', e.customer||'', Number(e.qty||0)])));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(log), 'รายการผลิตทั้งหมด');
+
+  XLSX.writeFile(wb, 'ข้อมูลย้อนหลัง_ไข่ไก่_'+(HIST_FROM||rows[0].date)+'_ถึง_'+(HIST_TO||rows[rows.length-1].date)+'.xlsx');
+}
+
+/* ---------- สำรองทั้งคลัง (.json) — ใช้ปุ่ม "กู้คืน" ในหน้า 5 นำกลับได้ ---------- */
+async function backupHistJson(){
+  const rows = await HIST.range(null, null);
+  const dump = {_app:'egg-dashboard-banna', _version:1, exportedAt:new Date().toISOString(), settings:SETTINGS, days:{}};
+  rows.forEach(r=>{ dump.days[r.date] = r.data; });
+  const blob = new Blob([JSON.stringify(dump)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Backup_ย้อนหลัง_ไข่ไก่_'+todayStr()+'_('+rows.length+'วัน).json';
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ---------- ดึงย้อนหลังจาก SharePoint / API ---------- */
+async function pullHistRemote(){
+  const st = document.getElementById('histStatus');
+  if(!IS_REMOTE()){ alert('ตอนนี้ใช้โหมดเครื่องเดียว — ตั้งค่าการเชื่อมต่อข้อมูลกลางได้ที่หน้า 5'); return; }
+  const from = HIST_FROM || addDays(todayStr(), -89), to = HIST_TO || todayStr();
+  const days = dateList(from, to).slice(-180);
+  let got = 0;
+  for(let i=0;i<days.length;i++){
+    const d = days[i];
+    st.textContent = 'กำลังดึง '+d+' ('+(i+1)+'/'+days.length+') ...';
+    try{
+      const r = await Remote.getDay(d);
+      if(r && r.payload){
+        const rec = await HIST.get(d);
+        const localRaw = localStorage.getItem(dayKey(d));
+        const base = localRaw!==null ? loadDay(d) : (rec ? rec.data : null);
+        const merged = mergeDay(base, r.payload);
+        if(HIST.hasContent(merged)){ await HIST.put(d, merged); got++; }
+        if(localRaw!==null) localStorage.setItem(dayKey(d), JSON.stringify(merged));
+        if(d===currentDate){ DAY = loadDay(d); renderAll(); }
+      }
+    }catch(e){ st.textContent = 'ดึงไม่สำเร็จที่ '+d+': '+(e.message||e); return; }
+  }
+  st.textContent = 'ดึงข้อมูลสำเร็จ '+got+' วัน';
+  setTimeout(renderHistory, 800);
+}
+
+/* ---------- ปุ่ม / ช่วงวันที่ ---------- */
+(function bindHistory(){
+  const $ = id=>document.getElementById(id);
+  function quick(q){
+    const t = todayStr();
+    if(q==='all'){ HIST_FROM = null; HIST_TO = null; }
+    else if(q==='month'){ HIST_FROM = t.slice(0,8)+'01'; HIST_TO = t; }
+    else if(q==='prevmonth'){ const d=new Date(t+'T00:00:00'); d.setDate(0); const e=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); HIST_FROM = e.slice(0,8)+'01'; HIST_TO = e; }
+    else { HIST_FROM = addDays(t, -(Number(q)-1)); HIST_TO = t; }
+  }
+  $('histQuick').querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+    $('histQuick').querySelectorAll('button').forEach(x=>x.classList.toggle('active', x===b));
+    quick(b.getAttribute('data-q')); renderHistory();
+  }));
+  $('histApply').addEventListener('click', ()=>{
+    HIST_FROM = $('histFrom').value || null; HIST_TO = $('histTo').value || null;
+    if(HIST_FROM && HIST_TO && HIST_FROM > HIST_TO){ const x=HIST_FROM; HIST_FROM=HIST_TO; HIST_TO=x; }
+    $('histQuick').querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+    renderHistory();
+  });
+  $('histExportXlsx').addEventListener('click', exportHistXlsx);
+  $('histBackupJson').addEventListener('click', backupHistJson);
+  $('histPullRemote').addEventListener('click', pullHistRemote);
+  if(!IS_REMOTE()) $('histPullRemote').style.display = 'none';
+  if(DISPLAY_MODE){ $('histPullRemote').style.display='none'; $('histBackupJson').style.display='none'; }
+
+  // render เมื่อเปิดแท็บหน้า 8
+  document.querySelector('#tabs button[data-page="p8"]').addEventListener('click', renderHistory);
+
+  // เริ่มต้น: ย้ายข้อมูลเก่าเข้าคลัง แล้วเติมข้อมูลวันที่เปิดอยู่ถ้าไม่มีในเครื่อง
+  HIST.hydrate(currentDate).finally(()=>HIST.migrateAndPrune());
+})();
+</script>
+</body>
+</html>
